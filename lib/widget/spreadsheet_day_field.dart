@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class SpreadsheetDayColumn extends StatefulWidget {
   final DateTime dateTime;
-  final WeekdaySlot weekdaySlot;
+  final WeekdaySlot? weekdaySlot;
   const SpreadsheetDayColumn(
       {required super.key, required this.dateTime, required this.weekdaySlot});
 
@@ -52,9 +52,12 @@ class _SpreadsheetDayColumnState extends State<SpreadsheetDayColumn>
   }
 
   String _getText() {
-    String result = widget.weekdaySlot.daySlot.shortName();
-    result += ' - ${AppHelper.instance.getSimpleDayString(widget.dateTime)}';
-    return result;
+    if (widget.weekdaySlot == null) {
+      return AppHelper.instance.getSimpleDayString(widget.dateTime);
+    } else {
+      String result = widget.weekdaySlot!.daySlot.name;
+      return result;
+    }
   }
 
   bool _isEditable() {

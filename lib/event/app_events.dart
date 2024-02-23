@@ -27,8 +27,6 @@ class TrainerUpdatedEvent {
 
 class SpreadsheetReadyEvent {}
 
-class DatesReadyEvent {}
-
 class ExtraDayUpdatedEvent {
   final int dag;
   final String text;
@@ -95,8 +93,6 @@ class AppEvents {
   static void fireSpreadsheetReady() =>
       _sEventBus.fire(SpreadsheetReadyEvent());
 
-  static void fireDatesReady() => _sEventBus.fire(DatesReadyEvent());
-
   static void fireExtraDayUpdatedEvent(int dag, String text) =>
       _sEventBus.fire(ExtraDayUpdatedEvent(dag, text));
 
@@ -126,9 +122,6 @@ class AppEvents {
   static void onTrainerReadyEvent(OnTrainerReadyEventFunc func) =>
       _sEventBus.on<TrainerReadyEvent>().listen((event) => func(event));
 
-  static void onTrainerDataReadyEvent(OnTrainerDataReadyEventFunc func) =>
-      _sEventBus.on<TrainerDataReadyEvent>().listen((event) => func(event));
-
   static void onSchemaUpdatedEvent(OnSchemaUpdateEventFunc func) =>
       _sEventBus.on<SchemaUpdatedEvent>().listen((event) => func(event));
 
@@ -137,9 +130,6 @@ class AppEvents {
 
   static void onSpreadsheetReadyEvent(OnSpreadsheetReadyEventFunc func) =>
       _sEventBus.on<SpreadsheetReadyEvent>().listen((event) => func(event));
-
-  static void onDatesReadyEvent(OnDatesReadyEventFunc func) =>
-      _sEventBus.on<DatesReadyEvent>().listen((event) => func(event));
 
   static void onExtraDayUpdatedEvent(OnExtraDayUpdatedEventFunc func) =>
       _sEventBus.on<ExtraDayUpdatedEvent>().listen((event) => func(event));
@@ -159,17 +149,12 @@ typedef OnShowPageFunc = void Function(ShowPageEvent event);
 
 typedef OnTrainerReadyEventFunc = void Function(TrainerReadyEvent event);
 
-typedef OnTrainerDataReadyEventFunc = void Function(
-    TrainerDataReadyEvent event);
-
 typedef OnSchemaUpdateEventFunc = void Function(SchemaUpdatedEvent event);
 
 typedef OnTrainerUpdatedEventFunc = void Function(TrainerUpdatedEvent event);
 
 typedef OnSpreadsheetReadyEventFunc = void Function(
     SpreadsheetReadyEvent event);
-
-typedef OnDatesReadyEventFunc = void Function(DatesReadyEvent event);
 
 typedef OnExtraDayUpdatedEventFunc = void Function(ExtraDayUpdatedEvent event);
 typedef OnReservationEventFunc = void Function(ReservationEvent event);

@@ -25,7 +25,9 @@ class _AdminPageState extends State<AdminPage> with AppMixin {
               onPressed: _removeCookie, child: const Text('Remove cookie')),
           OutlinedButton(
               onPressed: _addMetaData, child: const Text('Add MetaData')),
-
+          OutlinedButton(
+              onPressed: _addReservations,
+              child: const Text('Add Reservations')),
           OutlinedButton(
               onPressed: _deleteOldLogs, child: const Text('Delete old logs')),
           OutlinedButton(
@@ -53,7 +55,7 @@ class _AdminPageState extends State<AdminPage> with AppMixin {
   }
 
   List<User> _allUsers() {
-    List<User> users = [p.userBill, p.userElon, p.userMarc, p.userSteve];
+    List<User> users = [p.userBill, p.userElon, p.userMarc, p.userJeff];
     return users;
   }
 
@@ -121,6 +123,13 @@ class _AdminPageState extends State<AdminPage> with AppMixin {
 
     List<WeekdaySlot> slots = p.allWeekDaySlots();
     Dbs.instance.saveWeekdaySlots(slots);
+  }
+
+  void _addReservations() async {
+    List<Reservation> reservations = p.allReservationsMaart();
+    for (Reservation reservation in reservations) {
+      Dbs.instance.saveReservation(reservation, true);
+    }
   }
 
   //------------------ private -------------------------

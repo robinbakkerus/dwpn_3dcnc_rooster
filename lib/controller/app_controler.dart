@@ -1,5 +1,6 @@
 import 'dart:developer';
-
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
@@ -23,10 +24,17 @@ class AppController {
     await initializeDateFormatting('nl_NL', null);
   }
 
+  Future<void> getAllUsers() async {
+    List<User> users = await Dbs.instance.getAllUsers();
+    AppData.instance.setAllUsers(users);
+  }
+
   /// find the trainer gived the access code
   Future<bool> findUser(String accessCode) async {
-    User user = await Dbs.instance.findUserByAccessCode(accessCode);
-    if (user.isEmpty()) {
+    User? user = AppData.instance
+        .getAllUsers()
+        .firstWhereOrNull((e) => e.originalAccessCode == accessCode);
+    if (user == null) {
       return false;
     }
 
@@ -66,7 +74,6 @@ class AppController {
   ///----------------------------
   void setActiveDate(DateTime date) {
     AppData.instance.setActiveDate(date);
-    AppEvents.fireDatesReady();
   }
 
   ///------------------------------------------------
@@ -150,11 +157,16 @@ class AppController {
   }
 
   ///--------------------------
-  Future<void> saveReservation(Reservation reservation) async {
+  Future<void> saveReservation(Reservation reservation, bool add) async {
     try {
-      await Dbs.instance.saveReservation(reservation);
-      AppData.instance.getSpreadsheet().reservations.add(reservation);
-      AppEvents.fireSpreadsheetReady();
+      await Dbs.instance.saveReservation(reservation, add);
+      if (add) {
+        AppData.instance.getSpreadsheet().reservations.add(reservation);
+      } else {
+        AppData.instance.getSpreadsheet().reservations.remove(reservation);
+      }
+
+      // AppEvents.fireSpreadsheetReady();
     } catch (ex, stackTrace) {
       handleError(ex, stackTrace);
     }

@@ -21,8 +21,11 @@ class AppConstants {
   final Color lonuBlauw = const Color(0xff63A7DC);
   final Color lonuExtraDag = const Color(0xfff7cd9c);
   final Color lonuDinsDag = const Color(0xffF1F8E9);
+  final Color lonuWoensdag = const Color(0xffE8F5E9);
   final Color lonuDonderDag = const Color(0xffFFFDE7);
   final Color lonuZaterDag = const Color(0xffEBE8E6);
+  final Color lonuMonday = const Color(0xffFEC4EC);
+  final Color dayRow = const Color(0xff00EDFF);
 
   final double w1 = 0.1 * AppData.instance.screenWidth;
   final double w2 = 0.2 * AppData.instance.screenWidth;

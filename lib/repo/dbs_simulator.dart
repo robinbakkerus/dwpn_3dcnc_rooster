@@ -15,21 +15,8 @@ class Simulator with AppMixin implements Dbs {
   }
 
   @override
-  Future<User> findUserByAccessCode(String accessCode) async {
-    User? trainer =
-        p.allUsers.firstWhereOrNull((e) => e.accessCode == accessCode);
-    return trainer ?? User.empty();
-  }
-
-  @override
   Future<List<User>> getAllUsers() async {
     return p.allUsers;
-  }
-
-  @override
-  Future<User?> getUserByPk(String trainerPk) async {
-    User? trainer = p.allUsers.firstWhereOrNull((e) => e.pk == trainerPk);
-    return trainer ?? User.empty();
   }
 
   @override
@@ -68,7 +55,7 @@ class Simulator with AppMixin implements Dbs {
   }
 
   @override
-  Future<void> saveReservation(Reservation reservation) async {}
+  Future<void> saveReservation(Reservation reservation, bool add) async {}
 
   @override
   Future<void> saveWeekdaySlots(List<WeekdaySlot> weekdaySlots) async {}

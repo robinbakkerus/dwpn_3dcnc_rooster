@@ -418,9 +418,9 @@ class SpreadSheet {
       status: SpreadsheetStatus.fromMap(map['status']),
     );
     var reservationsMap = map['reservations'];
-    List<Reservation> reservations =
+    List<dynamic> reservations =
         reservationsMap.map((e) => Reservation.fromDbsId(e)).toList();
-    result.reservations = reservations;
+    result.reservations = reservations.map((e) => e as Reservation).toList();
     return result;
   }
 
@@ -434,11 +434,11 @@ class Reservation {
   final int day;
   final DaySlotEnum daySlotEnum;
   final String devicePk;
-  final User user;
+  final String userPk;
 
   //-- build something like; BG-14-M-PRI"
   String toDbsId() {
-    return "${user.pk}-${day.toString()}-${daySlotEnum.shortName()}-$devicePk";
+    return "$userPk-${day.toString()}-${daySlotEnum.shortName()}-$devicePk";
   }
 
   Reservation clone() {
@@ -446,20 +446,19 @@ class Reservation {
       day: day,
       daySlotEnum: daySlotEnum,
       devicePk: devicePk,
-      user: user,
+      userPk: userPk,
     );
   }
 
   factory Reservation.fromDbsId(String dbsId) {
     List<String> tokens = dbsId.split('-');
     String userPk = tokens[0];
-    User user = AppHelper.instance.findUserByPk(userPk);
 
     Reservation result = Reservation(
         day: int.parse(tokens[1]),
-        user: user,
+        userPk: userPk,
         devicePk: tokens[3],
-        daySlotEnum: DaySlotEnum.fromType(tokens[2]));
+        daySlotEnum: DaySlotEnum.fromShortname(tokens[2]));
 
     return result;
   }
@@ -468,20 +467,20 @@ class Reservation {
     required this.day,
     required this.daySlotEnum,
     required this.devicePk,
-    required this.user,
+    required this.userPk,
   });
 
   Reservation copyWith({
     int? day,
     DaySlotEnum? daySlotEnum,
     String? devicePk,
-    User? user,
+    String? userPk,
   }) {
     return Reservation(
       day: day ?? this.day,
       daySlotEnum: daySlotEnum ?? this.daySlotEnum,
       devicePk: devicePk ?? this.devicePk,
-      user: user ?? this.user,
+      userPk: userPk ?? this.userPk,
     );
   }
 
@@ -490,7 +489,7 @@ class Reservation {
       'day': day,
       'daySlotEnum': daySlotEnum.toMap(),
       'devicePk': devicePk,
-      'user': user.toMap(),
+      'user': userPk,
     };
   }
 
@@ -499,7 +498,7 @@ class Reservation {
       day: map['day'],
       daySlotEnum: DaySlotEnum.fromType(map['daySlotEnum']),
       devicePk: map['devicePk'],
-      user: User.fromMap(map['user']),
+      userPk: map['userPk'],
     );
   }
   String toJson() => json.encode(toMap());
@@ -507,7 +506,7 @@ class Reservation {
       Reservation.fromMap(json.decode(source));
   @override
   String toString() {
-    return 'Reservation(day: $day, daySlotEnum: $daySlotEnum, devicePk: $devicePk, user: $user)';
+    return 'Reservation(day: $day, daySlotEnum: $daySlotEnum, devicePk: $devicePk, userPk: $userPk)';
   }
 
   @override
@@ -518,7 +517,7 @@ class Reservation {
         other.day == day &&
         other.daySlotEnum == daySlotEnum &&
         other.devicePk == devicePk &&
-        other.user == user;
+        other.userPk == userPk;
   }
 
   @override
@@ -526,7 +525,7 @@ class Reservation {
     return day.hashCode ^
         daySlotEnum.hashCode ^
         devicePk.hashCode ^
-        user.hashCode;
+        userPk.hashCode;
   }
 }
 

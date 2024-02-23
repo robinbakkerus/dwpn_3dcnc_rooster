@@ -41,12 +41,11 @@ class _StartPageState extends State<StartPage> {
   @override
   void initState() {
     _getMetaData();
+    _getAllUsers();
     _getSpreadsheets();
     _accessCode = _checkCookie(); // this may be empty
-    AppEvents.onTrainerReadyEvent(_onTrainerReady);
-    AppEvents.onTrainerDataReadyEvent(_onTrainerDataReady);
-    AppEvents.onDatesReadyEvent(_onDatesReady);
     AppEvents.onErrorEvent(_onErrorEvent);
+    AppEvents.onTrainerReadyEvent(_onTrainerReady);
     AppEvents.onSpreadsheetReadyEvent(_onSpreadsheetReady);
     AppEvents.onShowPage(_onShowPage);
 
@@ -215,6 +214,10 @@ class _StartPageState extends State<StartPage> {
     AppController.instance.getAllMetaData();
   }
 
+  void _getAllUsers() async {
+    AppController.instance.getAllUsers();
+  }
+
   void _getSpreadsheets() async {
     AppController.instance.getActiveSpreadsheets();
   }
@@ -228,10 +231,12 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
-  void _onTrainerDataReady(TrainerDataReadyEvent event) async {
+  void _onSpreadsheetReady(SpreadsheetReadyEvent event) {
+    LoadingIndicatorDialog().dismiss();
     if (mounted) {
-      await AppController.instance.getActiveSpreadsheets();
       setState(() {
+        _barTitle = _buildBarTitle();
+
         if (_getStackIndex() != PageEnum.spreadsheetPage.code) {
           _setStackIndex(2);
         }
@@ -251,27 +256,10 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
-  void _onSpreadsheetReady(SpreadsheetReadyEvent event) {
-    LoadingIndicatorDialog().dismiss();
-    if (mounted) {
-      setState(() {
-        _barTitle = _buildBarTitle();
-      });
-    }
-  }
-
   void _onShowPage(ShowPageEvent event) {
     if (mounted) {
       setState(() {
         _setStackIndex(event.page.code);
-      });
-    }
-  }
-
-  void _onDatesReady(DatesReadyEvent event) {
-    if (mounted) {
-      setState(() {
-        _barTitle = _buildBarTitle();
       });
     }
   }

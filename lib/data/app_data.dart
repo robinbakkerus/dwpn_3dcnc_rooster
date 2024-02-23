@@ -52,7 +52,7 @@ class AppData {
 
   // this is set in the start_page when you click on the showSpreadsheet, or next/prev month
   final List<SpreadSheet> _spreadSheetList = [];
-  int activeSpreadSheetIndex = 0;
+  int activeSpreadSheetIndex = 1; //TODO
 
   SpreadSheet getSpreadsheet() {
     if (_spreadSheetList.isEmpty) {

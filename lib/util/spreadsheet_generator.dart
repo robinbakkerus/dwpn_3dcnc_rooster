@@ -2,6 +2,7 @@
 
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
+import 'package:dwpn_3dcnc_rooster/util/app_helper.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 
 class SpreadsheetGenerator with AppMixin {
@@ -20,11 +21,21 @@ class SpreadsheetGenerator with AppMixin {
         _getReservationForThisCell(day, daySlotEnum, devicePk);
 
     if (reservations.isNotEmpty) {
-      result = reservations.map((e) => e.user.firstName()).join(', ');
+      result =
+          reservations.map((e) => _getFirstNameByReservation(e)).join(', ');
     } else {
       result = '';
     }
     return result;
+  }
+
+  String _getFirstNameByReservation(Reservation reservation) {
+    User user = AppHelper.instance.findUserByPk(reservation.userPk);
+    if (!user.isEmpty()) {
+      return user.firstName();
+    } else {
+      return reservation.userPk;
+    }
   }
 
   List<Reservation> _getReservationForThisCell(

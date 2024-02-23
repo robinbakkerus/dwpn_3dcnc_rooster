@@ -69,7 +69,7 @@ class _SplashPageState extends State<SplashPage> with AppMixin {
       style: const TextStyle(fontSize: 12.0, color: Colors.black),
       child: AnimatedTextKit(
         animatedTexts: [
-          TyperAnimatedText('Trainingschema ${widget.version}',
+          TyperAnimatedText('Hobbycentrum 3D/CNC rooster ${widget.version}',
               speed: const Duration(milliseconds: 80)),
         ],
       ),

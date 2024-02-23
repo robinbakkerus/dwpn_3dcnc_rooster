@@ -26,58 +26,6 @@ class FirestoreHelper with AppMixin implements Dbs {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   /// find Trainer
-  @override
-  Future<User> findUserByAccessCode(String accessCode) async {
-    CollectionReference colRef = collectionRef(FsCol.users);
-    User trainer = User.empty();
-
-    late QuerySnapshot querySnapshot;
-    try {
-      querySnapshot =
-          await colRef.where('accessCode', isEqualTo: accessCode).get();
-    } catch (e, stackTrace) {
-      handleError(e, stackTrace);
-    }
-
-    try {
-      if (querySnapshot.size > 0) {
-        var map = Map<String, dynamic>.from(
-            querySnapshot.docs[0].data() as Map<dynamic, dynamic>);
-        trainer = User.fromMap(map);
-      }
-    } catch (e, stackTrace) {
-      handleError(e, stackTrace);
-    }
-
-    return trainer;
-  }
-
-  ///- get trainer, or null if not exists
-  @override
-  Future<User?> getUserByPk(String trainerPk) async {
-    CollectionReference colRef = collectionRef(FsCol.users);
-    User? trainer;
-
-    late DocumentSnapshot snapshot;
-    try {
-      snapshot = await colRef.doc(trainerPk).get();
-    } catch (e, stackTrace) {
-      handleError(e, stackTrace);
-    }
-
-    try {
-      if (snapshot.exists) {
-        var map =
-            Map<String, dynamic>.from(snapshot.data() as Map<dynamic, dynamic>);
-        map['id'] = trainerPk;
-        trainer = User.fromMap(map);
-      }
-    } catch (e, stackTrace) {
-      handleError(e, stackTrace);
-    }
-
-    return trainer;
-  }
 
   ///--------------------------------------------
 
@@ -145,7 +93,7 @@ class FirestoreHelper with AppMixin implements Dbs {
     late QuerySnapshot querySnapshot;
     try {
       querySnapshot = await colRef
-          .where("year", isEqualTo: true)
+          .where("year", isEqualTo: year)
           .where("month", isGreaterThanOrEqualTo: month)
           .get();
       for (var docSnapshot in querySnapshot.docs) {
@@ -244,7 +192,7 @@ class FirestoreHelper with AppMixin implements Dbs {
   }
 
   @override
-  Future<void> saveReservation(Reservation reservation) async {
+  Future<void> saveReservation(Reservation reservation, bool add) async {
     CollectionReference colRef = collectionRef(FsCol.spreadsheets);
 
     DateTime date = AppData.instance.getActiveDate();
@@ -253,9 +201,15 @@ class FirestoreHelper with AppMixin implements Dbs {
 
     String reservationId = reservation.toDbsId();
     try {
-      reservationsRef.update({
-        "reservations": FieldValue.arrayUnion([reservationId])
-      });
+      if (add) {
+        reservationsRef.update({
+          "reservations": FieldValue.arrayUnion([reservationId])
+        });
+      } else {
+        reservationsRef.update({
+          "reservations": FieldValue.arrayRemove([reservationId])
+        });
+      }
     } catch (e, stackTrace) {
       handleError(e, stackTrace);
     }

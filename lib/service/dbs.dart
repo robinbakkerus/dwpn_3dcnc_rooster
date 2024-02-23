@@ -8,8 +8,6 @@ abstract class Dbs {
       ? Simulator.instance as Dbs
       : FirestoreHelper.instance;
 
-  Future<User> findUserByAccessCode(String accessCode);
-  Future<User?> getUserByPk(String userPk);
   Future<List<User>> getAllUsers();
   Future<User> createOrUpdateUser(user);
   Future<void> saveSpreadsheet(SpreadSheet spreadsheet);
@@ -24,5 +22,5 @@ abstract class Dbs {
   Future<List<Device>> getAllDevices();
   Future<List<WeekdaySlot>> getAllWeekdaySlots();
   Future<void> saveWeekdaySlots(List<WeekdaySlot> weekdaySlots);
-  Future<void> saveReservation(Reservation reservation);
+  Future<void> saveReservation(Reservation reservation, bool add);
 }

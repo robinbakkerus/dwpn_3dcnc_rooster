@@ -110,6 +110,13 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
       List<WeekdaySlot> slots =
           AppHelper.instance.getWeekDaySlotsAtDate(dateTime);
       if (slots.isNotEmpty) {
+        // row with date and repeating header
+        DataRow dataRow = DataRow(
+          color: MaterialStateColor.resolveWith((states) => c.dayRow),
+          cells: _buildDataCells(dateTime, null),
+        );
+        result.add(dataRow);
+
         for (WeekdaySlot weekdaySlot in slots) {
           DataRow dataRow = DataRow(
             color: _getRowColor(dateTime),
@@ -126,13 +133,13 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     MaterialStateColor col =
         MaterialStateColor.resolveWith((states) => Colors.white);
     if (date.weekday == DateTime.monday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuZaterDag);
+      col = MaterialStateColor.resolveWith((states) => c.lonuDonderDag);
     } else if (date.weekday == DateTime.tuesday) {
       col = MaterialStateColor.resolveWith((states) => c.lonuDinsDag);
     } else if (date.weekday == DateTime.thursday) {
       col = MaterialStateColor.resolveWith((states) => c.lonuDonderDag);
     } else if (date.weekday == DateTime.wednesday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuZaterDag);
+      col = MaterialStateColor.resolveWith((states) => c.lonuWoensdag);
     } else if (date.weekday == DateTime.friday) {
       col = MaterialStateColor.resolveWith((states) => c.lonuDinsDag);
     }
@@ -140,14 +147,20 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   //------------------------------
-  List<DataCell> _buildDataCells(DateTime dateTime, WeekdaySlot weekdaySlot) {
+  List<DataCell> _buildDataCells(DateTime dateTime, WeekdaySlot? weekdaySlot) {
     List<DataCell> result = [];
 
     result.add(_buildDayCell(dateTime, weekdaySlot));
 
-    for (int i = 0; i < AppData.instance.deviceList.length; i++) {
-      String devicePk = AppData.instance.deviceList[i].name;
-      result.add(_buildUserReservationCell(dateTime, weekdaySlot, devicePk));
+    if (weekdaySlot == null) {
+      for (int i = 0; i < AppData.instance.deviceList.length; i++) {
+        result.add(DataCell(Text(AppData.instance.deviceList[i].name)));
+      }
+    } else {
+      for (int i = 0; i < AppData.instance.deviceList.length; i++) {
+        String devicePk = AppData.instance.deviceList[i].name;
+        result.add(_buildUserReservationCell(dateTime, weekdaySlot, devicePk));
+      }
     }
 
     return result;
@@ -165,7 +178,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   //----------------------------
-  DataCell _buildDayCell(DateTime dateTime, WeekdaySlot weekdaySlot) {
+  DataCell _buildDayCell(DateTime dateTime, WeekdaySlot? weekdaySlot) {
     return DataCell(SpreadsheetDayColumn(
         key: UniqueKey(), dateTime: dateTime, weekdaySlot: weekdaySlot));
   }
@@ -343,8 +356,8 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
           day: event.day,
           daySlotEnum: event.daySlotEnum,
           devicePk: event.devicePk,
-          user: AppData.instance.getUser());
-      AppController.instance.saveReservation(reservation);
+          userPk: AppData.instance.getUser().pk);
+      AppController.instance.saveReservation(reservation, event.addReservation);
     }
   }
 }

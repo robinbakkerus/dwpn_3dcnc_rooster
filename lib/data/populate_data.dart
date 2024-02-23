@@ -3,7 +3,7 @@
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 
 List<User> allUsers = [
-  userSteve,
+  userJeff,
   userBill,
   userMarc,
   userElon,
@@ -11,8 +11,8 @@ List<User> allUsers = [
 User userBill = _buildUser(
     'BG', 'Bill Gates', 'BILL', 'robin.bakkerus@gmail.com',
     roles: 'T,A,S');
-User userSteve =
-    _buildUser('SJ', 'Steve Jobs', 'STEV', 'robin.bakkerus@gmail.com');
+User userJeff =
+    _buildUser('JB', 'Jeff Bezos', 'JEFF', 'robin.bakkerus@gmail.com');
 User userElon =
     _buildUser('EM', 'Elon Musk', 'ELON', 'robin.bakkerus@gmail.com');
 User userMarc =
@@ -109,22 +109,22 @@ List<Reservation> allReservationsMaart() {
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
       devicePk: 'PR1',
-      user: userSteve));
+      userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
       devicePk: 'PR2',
-      user: userBill));
+      userPk: userBill.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.afternoon,
       devicePk: 'PR3',
-      user: userSteve));
+      userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
       devicePk: 'PR1',
-      user: userMarc));
+      userPk: userMarc.pk));
 
   return result;
 }

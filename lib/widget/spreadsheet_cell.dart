@@ -24,6 +24,7 @@ class SpreadsheetCell extends StatefulWidget {
 //--------------------------------
 class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   final _textTextCtrl = TextEditingController();
+  String _cellText = '';
 
   @override
   void initState() {
@@ -38,10 +39,11 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
 
   @override
   Widget build(BuildContext context) {
-    String cellText = _getCellText();
+    _cellText = _getCellText();
     Color borderCol =
-        cellText.contains(_userName()) ? Colors.orangeAccent : Colors.grey;
-    double borderWidth = cellText.contains(_userName()) ? 2 : 0.1;
+        _cellText.contains(_userName()) ? Colors.orangeAccent : Colors.grey;
+    Color backColor = _getCellColor();
+    double borderWidth = _cellText.contains(_userName()) ? 2 : 0.1;
 
     return InkWell(
       onTap: _showDialog() ? () => _dialogBuilder(context) : null,
@@ -49,16 +51,26 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
           width: c.w1,
           decoration: _showDialog()
               ? BoxDecoration(
+                  color: backColor,
                   border: Border.all(width: borderWidth, color: borderCol))
               : null,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
             child: Text(
-              cellText,
+              _cellText,
               overflow: TextOverflow.ellipsis,
             ),
           )),
     );
+  }
+
+  Color _getCellColor() {
+    List<String> userNames = _getCellText().replaceAll(' ', '').split(', ');
+    if (userNames.isNotEmpty && userNames[0].isNotEmpty) {
+      return Colors.grey[300]!;
+    } else {
+      return Colors.white;
+    }
   }
 
   // bool _isSupervisor() => AppData.instance.getUser().isSupervisor();
@@ -76,7 +88,7 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
       builder: (BuildContext context) {
         return Dialog(
           child: SizedBox(
-            height: AppData.instance.screenHeight * 0.2,
+            height: AppData.instance.screenHeight * 0.3,
             width: 500,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -85,9 +97,13 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
                 wh.verSpace(15),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
+                  child: __showOtherReservation(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
                   child: _askReservation(),
                 ),
-                wh.verSpace(15),
+                wh.verSpace(10),
                 _buildYesAndCancelButtons(context),
               ],
             ),
@@ -98,9 +114,54 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   }
 
   Widget _askReservation() {
-    String text =
-        'Hallo ${_userName()} wil je de ${widget.devicePk} reserveren?';
-    return Text(text);
+    if (_reservedByMe()) {
+      String text =
+          'Hallo ${_userName()}; wil je de  reservering voor de ${widget.devicePk} annuleren?';
+      return Text(text);
+    } else {
+      String text =
+          'Hallo ${_userName()}; wil je de ${widget.devicePk} reserveren?';
+      return Text(text);
+    }
+  }
+
+  Widget __showOtherReservation() {
+    if (_otherReservations().isNotEmpty) {
+      String txt = '''Deze is al gereserveerd door: ${_otherReservations()}
+      ''';
+      return Text(txt);
+    } else {
+      return Container();
+    }
+  }
+
+  String _otherReservations() {
+    String txt = _getCellText();
+    if (txt.isNotEmpty) {
+      List<String> list = txt.replaceAll(' ', '').split(',');
+      List<String> result = [];
+      for (String name in list) {
+        if (name != _userName()) {
+          result.add(name);
+        }
+      }
+      return result.join(', ');
+    } else {
+      return '';
+    }
+  }
+
+  bool _reservedByMe() {
+    String txt = _getCellText();
+    if (txt.isNotEmpty) {
+      List<String> list = txt.replaceAll(' ', '').split(',');
+      for (String name in list) {
+        if (name == _userName()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   String _getCellText() {
@@ -126,6 +187,8 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
       children: [
         TextButton(
             onPressed: () {
+              _updateCell();
+
               AppEvents.fireReservationEvent(
                   day: widget.dateTime.day,
                   daySlotEnum: widget.weekDaySlot.daySlot,
@@ -148,7 +211,13 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     );
   }
 
+  void _updateCell() {
+    setState(() {
+      _cellText = '${_userName()}, ${_getCellText()}';
+    });
+  }
+
   bool _addReservation() {
-    return true;
+    return _reservedByMe() ? false : true;
   }
 }
