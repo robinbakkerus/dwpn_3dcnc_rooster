@@ -7,6 +7,7 @@ import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:dwpn_3dcnc_rooster/widget/spreadsheet_cell.dart';
 import 'package:dwpn_3dcnc_rooster/widget/spreadsheet_day_field.dart';
 import 'package:flutter/material.dart';
+import 'package:week_number/iso.dart';
 // ignore: depend_on_referenced_packages
 // import 'package:collection/collection.dart';
 
@@ -20,6 +21,7 @@ class SpreadsheetPage extends StatefulWidget {
 //-------------------
 class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   Widget _dataGrid = Container();
+  int _activeWeekNr = 0;
 
   _SpreadsheetPageState();
 
@@ -55,21 +57,24 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         AppData.instance.getUser().isSupervisor()));
   }
 
-  //--------------------------------
-  // bool _isSupervisor() {
-  //   return AppData.instance.getUser().isSupervisor();
-  // }
-
   Widget _buildGrid(BuildContext context) {
-    return _buildDataTable(context);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSelectWeekButtons(),
+        _buildDataTable(context),
+        _buildBottomButtons(),
+      ],
+    );
   }
 
 //--------------------------------
   Widget _buildDataTable(BuildContext context) {
-    double colSpace = AppHelper.instance.isWindows() ? 25 : 10;
+    double colSpace = AppHelper.instance.isWindows() ? 1 : 1;
     return DataTable(
       headingRowHeight: 30,
-      horizontalMargin: 10,
+      horizontalMargin: 1,
       headingRowColor:
           MaterialStateColor.resolveWith((states) => c.ssRowHeader),
       columnSpacing: colSpace,
@@ -101,8 +106,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   List<DataRow> _buildDataRows() {
     List<DataRow> result = [];
 
-    List<DateTime> dates =
-        AppHelper.instance.getAllDatesInMonth(AppData.instance.getActiveDate());
+    List<DateTime> dates = AppHelper.instance.getAllDatesInWeek(_activeWeekNr);
 
     for (DateTime dateTime in dates) {
       List<WeekdaySlot> slots =
@@ -197,69 +201,85 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   //----------------------------
-  // Widget _buildButtons() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       wh.verSpace(10),
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         children: [
-  //           wh.horSpace(10),
-  //           InkWell(
-  //               onTap: _onShowSpreadsheetInfo,
-  //               child: const Icon(
-  //                 Icons.info_outline,
-  //                 size: 32,
-  //                 color: Colors.lightBlue,
-  //               )),
-  //           wh.horSpace(20),
-  //           _buildActionButton(context),
-  //         ],
-  //       ),
-  //     ],
-  //   );
-  // }
+  Widget _buildSelectWeekButtons() {
+    List<int> weeknrs = AppHelper.instance
+        .getWeekNumbersForMonth(AppData.instance.getActiveDate());
+    List<Widget> weeks = weeknrs
+        .map((e) => TextButton(
+            onPressed: () => _onSelectWeek(e), child: Text(_getWeekText(e))))
+        .toList();
+    return Row(children: weeks);
+  }
+
+  String _getWeekText(int weeknr) {
+    String result = 'Week $weeknr';
+    DateTime date1 =
+        dateTimeFromWeekNumber(AppData.instance.getActiveYear(), weeknr);
+    DateTime date2 = date1.add(const Duration(days: 6));
+    return result += ' (${date1.day} - ${date2.day})';
+  }
 
   //----------------------------
-  // Widget _buildActionButton(BuildContext context) {
-  //   if (AppData.instance.getSpreadsheet().status ==
-  //       SpreadsheetStatus.underConstruction) {
-  //     return _buildActionButtonsNewSpreadsheet();
-  //   } else {
-  //     return _buildActionButtonPublishedSpreadsheet();
-  //   }
-  // }
+  void _onSelectWeek(int weeknr) {
+    setState(() {
+      _activeWeekNr = weeknr;
+    });
+  }
 
-  //----------------------------
-  // Widget _buildActionButtonsNewSpreadsheet() {
-  //   if (_isSupervisor()) {
-  //     return OutlinedButton(
-  //         onPressed: _onConfirmFinalizeSpreadsheet,
-  //         child: const Text('Maak schema definitief'));
-  //   } else {
-  //     return Container();
-  //   }
-  // }
+  // ----------------------------
+  Widget _buildBottomButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        wh.verSpace(10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            wh.horSpace(10),
+            const InkWell(
+                onTap: null,
+                child: Icon(
+                  Icons.info_outline,
+                  size: 32,
+                  color: Colors.lightBlue,
+                )),
+            wh.horSpace(20),
+            _buildActionButton(context),
+          ],
+        ),
+      ],
+    );
+  }
 
-  // Widget _buildActionButtonPublishedSpreadsheet() {
-  //   if (AppData.instance.getSpreadsheet().status == SpreadsheetStatus.active) {
-  //     return OutlinedButton(
-  //         onPressed: _buildOpenSchemaAlertDialog,
-  //         child: const Text('Maak schema open voor wijziging(en)'));
-  //   } else {
-  //     return Container();
-  //   }
-  // }
+  // ----------------------------
+  Widget _buildActionButton(BuildContext context) {
+    if (AppData.instance.getSpreadsheet().status ==
+        SpreadsheetStatus.underConstruction) {
+      return _buildActionButtonsNewSpreadsheet();
+    } else {
+      return Container();
+    }
+  }
+
+  // ----------------------------
+  Widget _buildActionButtonsNewSpreadsheet() {
+    if (_isSupervisor()) {
+      return OutlinedButton(
+          onPressed: _onConfirmFinalizeSpreadsheet,
+          child: const Text('Maak schema definitief'));
+    } else {
+      return Container();
+    }
+  }
 
   ///--------------------------------------------------------
   // void _onShowSpreadsheetInfo() {
   //   _buildDialogSpreadsheetInfo(context);
   // }
 
-  // void _onConfirmFinalizeSpreadsheet() {
-  //   _buildDialogConfirm(context, true);
-  // }
+  void _onConfirmFinalizeSpreadsheet() {
+    _buildDialogConfirm(context, true);
+  }
 
   // void _makeSpreadsheetFinal(BuildContext context) async {
   //   AppController.instance.finalizeSpreadsheet(_spreadSheet);
@@ -311,47 +331,49 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   //   });
   // }
 
-  // void _buildDialogConfirm(BuildContext context, bool allProgramFieldSet) {
-  //   String msg = allProgramFieldSet
-  //       ? "Weet je zeker dat je het schema van ${AppData.instance.getActiveMonthAsString()} definitief wilt maken"
-  //       : "Eerst moeten alle trainingen gevuld zijn!";
-  //   Widget cancelButton = TextButton(
-  //     child: const Text("Cancel"),
-  //     onPressed: () {
-  //       Navigator.of(context, rootNavigator: true)
-  //           .pop(); // dismisses only the dialog and returns nothing
-  //     },
-  //   );
-  //   Widget continueButton = TextButton(
-  //     onPressed: allProgramFieldSet
-  //         ? () {
-  //             _makeSpreadsheetFinal(context);
+  void _buildDialogConfirm(BuildContext context, bool allProgramFieldSet) {
+    String msg =
+        "Weet je zeker dat je het schema van ${AppData.instance.getActiveMonthAsString()} definitief wilt maken";
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true)
+            .pop(); // dismisses only the dialog and returns nothing
+      },
+    );
+    Widget continueButton = TextButton(
+      onPressed: allProgramFieldSet
+          ? () {
+              // _makeSpreadsheetFinal(context);
 
-  //             Navigator.of(context, rootNavigator: true)
-  //                 .pop(); // dismisses only the dialog and returns nothing
-  //           }
-  //         : null,
-  //     child: const Text("Continue"),
-  //   ); // set up the AlertDialog
-  //   AlertDialog alert = AlertDialog(
-  //     title: const Text("Schema definitief maken"),
-  //     content: Text(msg),
-  //     actions: [
-  //       continueButton,
-  //       cancelButton,
-  //     ],
-  //   ); // show the dialog
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return alert;
-  //     },
-  //   );
-  // }
+              Navigator.of(context, rootNavigator: true)
+                  .pop(); // dismisses only the dialog and returns nothing
+            }
+          : null,
+      child: const Text("Continue"),
+    ); // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Schema definitief maken"),
+      content: Text(msg),
+      actions: [
+        continueButton,
+        cancelButton,
+      ],
+    ); // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 
   void _onSpreadsheetReady(SpreadsheetReadyEvent event) {
     if (mounted) {
       setState(() {
+        _activeWeekNr = DateTime(AppData.instance.getActiveYear(),
+                AppData.instance.getActiveMonth(), 1)
+            .weekNumber;
         // if (AppData.instance.getSpreadsheet().status ==
         //     SpreadsheetStatus.active) {
         //   wh.showSnackbar('Schema is al definitief!', color: Colors.orange);
@@ -372,5 +394,10 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
           userPk: AppData.instance.getUser().pk);
       AppController.instance.saveReservation(reservation, event.addReservation);
     }
+  }
+
+  //--------------------------------
+  bool _isSupervisor() {
+    return AppData.instance.getUser().isSupervisor();
   }
 }

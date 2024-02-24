@@ -443,10 +443,11 @@ class Reservation {
   final DaySlotEnum daySlotEnum;
   final String devicePk;
   final String userPk;
+  bool selected = false;
 
   //-- build something like; BG-14-M-PRI"
   String toDbsId() {
-    return "$userPk-${day.toString()}-${daySlotEnum.shortName()}-$devicePk";
+    return "$userPk-${day.toString()}-${daySlotEnum.shortName()}-$devicePk${selected ? '-S' : ''}";
   }
 
   Reservation clone() {
@@ -455,18 +456,21 @@ class Reservation {
       daySlotEnum: daySlotEnum,
       devicePk: devicePk,
       userPk: userPk,
+      selected: selected,
     );
   }
 
   factory Reservation.fromDbsId(String dbsId) {
     List<String> tokens = dbsId.split('-');
     String userPk = tokens[0];
+    bool selected = tokens.length > 4 && tokens[4] == 'S';
 
     Reservation result = Reservation(
         day: int.parse(tokens[1]),
         userPk: userPk,
         devicePk: tokens[3],
-        daySlotEnum: DaySlotEnum.fromShortname(tokens[2]));
+        daySlotEnum: DaySlotEnum.fromShortname(tokens[2]),
+        selected: selected);
 
     return result;
   }
@@ -476,21 +480,8 @@ class Reservation {
     required this.daySlotEnum,
     required this.devicePk,
     required this.userPk,
+    this.selected = false,
   });
-
-  Reservation copyWith({
-    int? day,
-    DaySlotEnum? daySlotEnum,
-    String? devicePk,
-    String? userPk,
-  }) {
-    return Reservation(
-      day: day ?? this.day,
-      daySlotEnum: daySlotEnum ?? this.daySlotEnum,
-      devicePk: devicePk ?? this.devicePk,
-      userPk: userPk ?? this.userPk,
-    );
-  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -498,23 +489,8 @@ class Reservation {
       'daySlotEnum': daySlotEnum.toMap(),
       'devicePk': devicePk,
       'user': userPk,
+      'selected': selected
     };
-  }
-
-  factory Reservation.fromMap(Map<String, dynamic> map) {
-    return Reservation(
-      day: map['day'],
-      daySlotEnum: DaySlotEnum.fromType(map['daySlotEnum']),
-      devicePk: map['devicePk'],
-      userPk: map['userPk'],
-    );
-  }
-  String toJson() => json.encode(toMap());
-  factory Reservation.fromJson(String source) =>
-      Reservation.fromMap(json.decode(source));
-  @override
-  String toString() {
-    return 'Reservation(day: $day, daySlotEnum: $daySlotEnum, devicePk: $devicePk, userPk: $userPk)';
   }
 
   @override

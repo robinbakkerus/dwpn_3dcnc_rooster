@@ -8,6 +8,7 @@ import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:week_number/iso.dart';
 
 class AppHelper with AppMixin {
   AppHelper._();
@@ -40,6 +41,18 @@ class AppHelper with AppMixin {
   ///------------- get all dates in the given month
   List<DateTime> getAllDatesInMonth(DateTime startDate) {
     DateTime endDate = DateTime(startDate.year, startDate.month + 1, 0);
+    List<DateTime> days = [];
+    for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
+      days.add(startDate.add(Duration(days: i)));
+    }
+    return days;
+  }
+
+  ///------------- get all dates in the given month
+  List<DateTime> getAllDatesInWeek(int weeknr) {
+    DateTime startDate =
+        dateTimeFromWeekNumber(AppData.instance.getActiveYear(), weeknr);
+    DateTime endDate = startDate.add(const Duration(days: 6));
     List<DateTime> days = [];
     for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
       days.add(startDate.add(Duration(days: i)));
@@ -87,9 +100,7 @@ class AppHelper with AppMixin {
 
   // return something like "Din 9" , which can be used to set label
   String getSimpleDayString(DateTime dateTime) {
-    String weekday = _getShortWeekDay(dateTime);
-    String day = dateTime.day.toString();
-    return '$weekday $day';
+    return weekDayStringFromDate(date: dateTime, locale: c.localNL);
   }
 
   /// return something like: 'din 1' or 'vrijdag 1'
@@ -100,7 +111,7 @@ class AppHelper with AppMixin {
       weekdayStr = weekdayStr.substring(0, length);
     }
     weekdayStr += ' ${date.day}';
-    return weekdayStr;
+    return weekdayStr.substring(0, 1).toUpperCase() + weekdayStr.substring(1);
   }
 
   /// ------------------------
@@ -232,11 +243,19 @@ class AppHelper with AppMixin {
         (e) => e.name.toLowerCase() == groupName.toLowerCase());
   }
 
-  /// -------- private methods --------------------------------
+  List<int> getWeekNumbersForMonth(DateTime dateTime) {
+    List<int> result = [];
 
-  String _getShortWeekDay(DateTime dateTime) {
-    String dag =
-        weekDayStringFromDate(date: dateTime, locale: c.localNL, length: 3);
-    return dag.substring(0, 2);
+    DateTime date = dateTime.copyWith(day: 1);
+    while (date.month == AppData.instance.getActiveMonth()) {
+      int weeknr = date.weekNumber;
+      result.add(weeknr);
+      date = date.add(const Duration(days: 7));
+    }
+
+    return result;
   }
 }
+
+  /// -------- private methods --------------------------------
+
