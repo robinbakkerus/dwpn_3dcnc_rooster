@@ -107,6 +107,9 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     List<DataRow> result = [];
 
     List<DateTime> dates = AppHelper.instance.getAllDatesInWeek(_activeWeekNr);
+    dates = dates
+        .where((e) => e.month == AppData.instance.getActiveMonth())
+        .toList();
 
     for (DateTime dateTime in dates) {
       List<WeekdaySlot> slots =
@@ -286,12 +289,11 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     _buildDialogConfirm(context, true);
   }
 
-  // void _makeSpreadsheetFinal(BuildContext context) async {
-  //   AppController.instance.finalizeSpreadsheet(_spreadSheet);
-  //   AppData.instance.getSpreadsheet().status = SpreadsheetStatus.active;
-  //   AppEvents.fireSpreadsheetReady();
-  //   wh.showSnackbar('Training schema is nu definitief!');
-  // }
+  void _makeSpreadsheetFinal(BuildContext context) async {
+    AppController.instance.finalizeSpreadsheet();
+    AppEvents.fireSpreadsheetReady();
+    wh.showSnackbar('Training schema is nu definitief!');
+  }
 
   // void _buildDialogSpreadsheetInfo(BuildContext context) {
   //   Widget closeButton = TextButton(
@@ -349,17 +351,19 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     Widget continueButton = TextButton(
       onPressed: allProgramFieldSet
           ? () {
-              // _makeSpreadsheetFinal(context);
+              _makeSpreadsheetFinal(context);
 
               Navigator.of(context, rootNavigator: true)
                   .pop(); // dismisses only the dialog and returns nothing
             }
           : null,
-      child: const Text("Continue"),
+      child: const Text("Yes", style: TextStyle(color: Colors.green)),
     ); // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: const Text("Schema definitief maken"),
-      content: Text(msg),
+      content: Text(
+        msg,
+      ),
       actions: [
         continueButton,
         cancelButton,

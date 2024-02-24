@@ -26,8 +26,8 @@ class _AdminPageState extends State<AdminPage> with AppMixin {
           OutlinedButton(
               onPressed: _addMetaData, child: const Text('Add MetaData')),
           OutlinedButton(
-              onPressed: _addReservations,
-              child: const Text('Add Reservations')),
+              onPressed: _addSpreadsheet,
+              child: const Text('Save spreadsheet')),
           OutlinedButton(
               onPressed: _deleteOldLogs, child: const Text('Delete old logs')),
           OutlinedButton(
@@ -125,11 +125,14 @@ class _AdminPageState extends State<AdminPage> with AppMixin {
     Dbs.instance.saveWeekdaySlots(slots);
   }
 
-  void _addReservations() async {
+  void _addSpreadsheet() async {
     List<Reservation> reservations = p.allReservationsMaart();
-    for (Reservation reservation in reservations) {
-      Dbs.instance.saveReservation(reservation, true);
-    }
+    SpreadSheet spreadsheet = SpreadSheet(year: 2024, month: 3);
+    spreadsheet.reservations = reservations;
+    Dbs.instance.saveSpreadsheet(spreadsheet);
+    // for (Reservation reservation in reservations) {
+    //   Dbs.instance.saveReservation(reservation, true);
+    // }
   }
 
   //------------------ private -------------------------

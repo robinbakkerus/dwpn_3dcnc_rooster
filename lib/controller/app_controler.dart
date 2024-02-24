@@ -7,6 +7,7 @@ import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 import 'package:dwpn_3dcnc_rooster/repo/firestore_helper.dart';
 import 'package:dwpn_3dcnc_rooster/service/dbs.dart';
+import 'package:dwpn_3dcnc_rooster/util/spreadsheet_generator.dart';
 // import 'package:dwpn_3dcnc_rooster/widget/busy_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -122,7 +123,13 @@ class AppController {
   }
 
   ///--------------------
-  void finalizeSpreadsheet(SpreadSheet spreadSheet) async {
+  void finalizeSpreadsheet() async {
+    SpreadSheet spreadSheet = SpreadsheetGenerator.instance
+        .finalizeSpreadsheetReservation(AppData.instance
+            .getSpreadsheet()); //SpreadsheetGenerator.instance.finalizeSpreadsheetReservation(spreadSheet, reservations);
+
+    spreadSheet.status = SpreadsheetStatus.active;
+
     await Dbs.instance.saveSpreadsheet(spreadSheet);
     // await _mailSpreadsheetIsFinal(spreadSheet);
   }
