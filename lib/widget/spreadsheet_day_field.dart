@@ -33,22 +33,32 @@ class _SpreadsheetDayColumnState extends State<SpreadsheetDayColumn>
         ? const EdgeInsets.fromLTRB(5, 2, 5, 2)
         : const EdgeInsets.fromLTRB(2, 2, 2, 2);
 
-    Decoration? decoration = _isEditable()
-        ? BoxDecoration(border: Border.all(width: 0.1, color: Colors.grey))
-        : null;
+    Decoration? decoration = _buildDecoration();
     return InkWell(
       onTap: _isEditable() ? () {} : null,
       child: Container(
+          width: c.w1,
           decoration: decoration,
           child: Padding(
             padding: insets,
             child: Text(
               _getText(),
-              // AppHelper.instance.getSimpleDayString(widget.timeSlot.date),
               overflow: TextOverflow.ellipsis,
             ),
           )),
     );
+  }
+
+  Decoration? _buildDecoration() {
+    if (widget.weekdaySlot == null) {
+      return const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey)));
+    }
+
+    Decoration? decoration = _isEditable()
+        ? BoxDecoration(border: Border.all(width: 0.1, color: Colors.grey))
+        : null;
+    return decoration;
   }
 
   String _getText() {

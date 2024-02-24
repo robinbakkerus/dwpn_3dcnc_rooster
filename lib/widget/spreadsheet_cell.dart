@@ -10,12 +10,14 @@ class SpreadsheetCell extends StatefulWidget {
   final WeekdaySlot weekDaySlot;
   final String devicePk;
   final bool isEditable;
+  final Color color;
   const SpreadsheetCell(
       {required super.key,
       required this.dateTime,
       required this.weekDaySlot,
       required this.devicePk,
-      required this.isEditable});
+      required this.isEditable,
+      required this.color});
 
   @override
   State<SpreadsheetCell> createState() => _SpreadsheetCellState();
@@ -42,7 +44,7 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     _cellText = _getCellText();
     Color borderCol =
         _cellText.contains(_userName()) ? Colors.orangeAccent : Colors.grey;
-    Color backColor = _getCellColor();
+    Color backColor = _getCellBackgroundColor();
     double borderWidth = _cellText.contains(_userName()) ? 2 : 0.1;
 
     return InkWell(
@@ -64,12 +66,12 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     );
   }
 
-  Color _getCellColor() {
+  Color _getCellBackgroundColor() {
     List<String> userNames = _getCellText().replaceAll(' ', '').split(', ');
-    if (userNames.isNotEmpty && userNames[0].isNotEmpty) {
+    if (userNames.length > 1) {
       return Colors.grey[300]!;
     } else {
-      return Colors.white;
+      return widget.color;
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
@@ -6,7 +7,6 @@ import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 import 'package:dwpn_3dcnc_rooster/repo/firestore_helper.dart';
 import 'package:dwpn_3dcnc_rooster/service/dbs.dart';
-import 'package:dwpn_3dcnc_rooster/util/app_helper.dart';
 // import 'package:dwpn_3dcnc_rooster/widget/busy_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -20,7 +20,6 @@ class AppController {
   /// get screen sizes and save this
   Future<void> initializeAppData(BuildContext context) async {
     _setScreenSizes(context);
-    _setDates();
     await initializeDateFormatting('nl_NL', null);
   }
 
@@ -71,11 +70,6 @@ class AppController {
     return true;
   }
 
-  ///----------------------------
-  void setActiveDate(DateTime date) {
-    AppData.instance.setActiveDate(date);
-  }
-
   ///------------------------------------------------
   Future<void> getActiveSpreadsheets() async {
     // LoadingIndicatorDialog().show();
@@ -95,6 +89,7 @@ class AppController {
       AppData.instance.addSpreadsheets(spreadSheets[1]);
     }
 
+    AppData.instance.setActiveSpreadSheetIndex(0);
     AppEvents.fireSpreadsheetReady();
   }
 
@@ -182,28 +177,8 @@ class AppController {
   }
 
   ///----------------
-  void _setDates() async {
-    DateTime lastActiveDate = await _getLastActiveDate();
-
-    DateTime nextMonth =
-        lastActiveDate.copyWith(month: lastActiveDate.month + 1);
-
-    setActiveDate(nextMonth);
-    AppData.instance.lastActiveDate = lastActiveDate;
-
-    // trainer may create 2 months ahead if where near the end the curr month (day=20), else 1 month ahead
-    DateTime lastMonth = DateTime.now().day > 15
-        ? AppHelper.instance.addMonths(lastActiveDate, 2)
-        : AppHelper.instance.addMonths(lastActiveDate, 1);
-    AppData.instance.lastMonth = lastMonth;
-  }
-
-  //-------------------------------------------
-  Future<DateTime> _getLastActiveDate() async {
-    DateTime lastActiveDate =
-        DateTime(DateTime.now().year, DateTime.now().month, 1);
-
-    return lastActiveDate;
+  void setActiveSpreadsheetIndex(int index) {
+    AppData.instance.setActiveSpreadSheetIndex(index);
   }
 
   //-------------------------------------------

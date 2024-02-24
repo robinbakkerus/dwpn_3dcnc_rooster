@@ -1,5 +1,5 @@
-import 'dart:developer';
-
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_version.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 
@@ -19,11 +19,6 @@ class AppData {
   double screenHeight = 600.0; //assume
   double shortestSide = 600; //assume
   String trainerId = "";
-
-  DateTime _activeDate = DateTime(2024, 1, 1);
-  DateTime lastActiveDate = DateTime(2024, 1, 1);
-  DateTime lastMonth = DateTime(2024, 1, 1);
-  DateTime firstSpreadDate = DateTime(2024, 1, 1);
 
   int stackIndex = 0;
 
@@ -52,15 +47,22 @@ class AppData {
 
   // this is set in the start_page when you click on the showSpreadsheet, or next/prev month
   final List<SpreadSheet> _spreadSheetList = [];
-  int activeSpreadSheetIndex = 1; //TODO
+  List<SpreadSheet> getSpreadSheetList() => _spreadSheetList;
+
+  int _activeSpreadSheetIndex = -1;
+  int getActiveSpreadSheetIndex() => _activeSpreadSheetIndex;
+  void setActiveSpreadSheetIndex(int index) {
+    _activeSpreadSheetIndex = index;
+  }
 
   SpreadSheet getSpreadsheet() {
     if (_spreadSheetList.isEmpty) {
       return SpreadSheet(
           year: DateTime.now().year, month: DateTime.now().month);
     } else {
-      if (activeSpreadSheetIndex < _spreadSheetList.length) {
-        return _spreadSheetList[activeSpreadSheetIndex];
+      if (_activeSpreadSheetIndex < _spreadSheetList.length &&
+          _activeSpreadSheetIndex >= 0) {
+        return _spreadSheetList[_activeSpreadSheetIndex];
       } else {
         return _spreadSheetList[0];
       }
@@ -72,27 +74,29 @@ class AppData {
   }
 
   void addSpreadsheets(SpreadSheet spreadSheet) {
-    //todo if al bestaat
-    _spreadSheetList.add(spreadSheet);
+    SpreadSheet? sheet = _spreadSheetList.firstWhereOrNull(
+        (e) => e.year == spreadSheet.year && e.month == spreadSheet.month);
+    if (sheet == null) {
+      _spreadSheetList.add(spreadSheet);
+    }
   }
 
   // ---
-  void setActiveDate(DateTime date) {
-    log("todo set active data $date");
-    DateTime useDate = DateTime(date.year, date.month, 1);
-    _activeDate = useDate;
-  }
 
   DateTime getActiveDate() {
-    return _activeDate;
+    if (_spreadSheetList.length > _activeSpreadSheetIndex) {
+      return DateTime(getSpreadsheet().year, getSpreadsheet().month, 1);
+    } else {
+      return DateTime.now();
+    }
   }
 
   int getActiveMonth() {
-    return _activeDate.month;
+    return getActiveDate().month;
   }
 
   int getActiveYear() {
-    return _activeDate.year;
+    return getActiveDate().year;
   }
 
   ///

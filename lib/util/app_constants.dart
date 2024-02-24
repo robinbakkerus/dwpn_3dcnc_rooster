@@ -18,13 +18,14 @@ class AppConstants {
   final Color lightblue = const Color(0xffBFD9EE);
   final Color lightOrange = const Color(0xffF3EFE3);
   final Color lightBrown = const Color(0xffEDEAE9);
-  final Color lonuBlauw = const Color(0xff63A7DC);
+  final Color ssRowHeader = const Color(0xff63A7DC);
   final Color lonuExtraDag = const Color(0xfff7cd9c);
-  final Color lonuDinsDag = const Color(0xffF1F8E9);
-  final Color lonuWoensdag = const Color(0xffE8F5E9);
-  final Color lonuDonderDag = const Color(0xffFFFDE7);
-  final Color lonuZaterDag = const Color(0xffEBE8E6);
-  final Color lonuMonday = const Color(0xffFEC4EC);
+  final Color ssRowTuesday = Colors.green[100]!;
+  final Color ssRowWednesday = const Color(0xffE8F5E9);
+  final Color ssRowThursday = Colors.lime[100]!;
+  final Color ssRowFriday = Colors.yellow[50]!;
+  final Color ssRowSaturday = const Color(0xffEBE8E6);
+  final Color ssRowMonday = Colors.blue[100]!;
   final Color dayRow = const Color(0xff00EDFF);
 
   final double w1 = 0.1 * AppData.instance.screenWidth;

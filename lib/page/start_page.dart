@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:dwpn_3dcnc_rooster/controller/app_controler.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
@@ -9,14 +8,14 @@ import 'package:dwpn_3dcnc_rooster/page/admin_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/ask_accesscode_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/error_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/help_page.dart';
-import 'package:dwpn_3dcnc_rooster/page/spreadsheet_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/splash_page.dart';
+import 'package:dwpn_3dcnc_rooster/page/spreadsheet_page.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_constants.dart';
-import 'package:dwpn_3dcnc_rooster/util/app_helper.dart';
 import 'package:dwpn_3dcnc_rooster/util/spreadsheet_status_help.dart'
     as status_help;
 import 'package:dwpn_3dcnc_rooster/widget/busy_indicator.dart';
 import 'package:dwpn_3dcnc_rooster/widget/widget_helper.dart';
+import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
 
 class StartPage extends StatefulWidget {
@@ -125,7 +124,7 @@ class _StartPageState extends State<StartPage> {
     String result = '';
 
     if (_getStackIndex() == PageEnum.spreadsheetPage.code) {
-      result = _getBarTitleForSchemaEditPage();
+      result = _getBarTitleForSpreadsheetPage();
     } else if (_getStackIndex() == PageEnum.helpPage.code) {
       result = 'Help pagina';
     } else if (_getStackIndex() == PageEnum.adminPage.code) {
@@ -134,30 +133,10 @@ class _StartPageState extends State<StartPage> {
     return result;
   }
 
-  String _getBarTitleForSpreadhsheetPage() {
+  String _getBarTitleForSpreadsheetPage() {
     String result = '';
-    if (_isLargeScreen()) {
-      result = 'Schema ${AppData.instance.getActiveMonthAsString()}';
-    } else {
-      result = AppData.instance.getActiveMonthAsString().substring(0, 3);
-    }
-    result += ' (${_getSpreadstatus()})';
-    return result;
-  }
-
-  String _getBarTitleForSchemaEditPage() {
-    String firstName = '${AppData.instance.getUser().firstName()} ';
-    String result = '';
-    if (_isLargeScreen()) {
-      result =
-          'Reserveringen $firstName${AppData.instance.getActiveMonthAsString()}';
-      result += ' ${AppData.instance.getActiveYear()}';
-    } else {
-      result =
-          '$firstName ${AppData.instance.getActiveMonthAsString()} Reserveringen';
-    }
-
-    if (_isLargeScreen()) {}
+    result =
+        '${AppData.instance.getActiveMonthAsString()}  (${AppData.instance.getSpreadsheet().status})';
     return result;
   }
 
@@ -172,28 +151,6 @@ class _StartPageState extends State<StartPage> {
             style: const TextStyle(color: Colors.black, fontSize: 24),
           )),
     );
-  }
-
-  String _getSpreadstatus() {
-    String result = '';
-    DateTime useDate = AppData.instance.getSpreadsheetDate().copyWith(day: 2);
-    if (useDate.isBefore(DateTime.now().copyWith(day: 1))) {
-      result = 'verlopen';
-    } else if (AppData.instance.getSpreadsheet().status ==
-        SpreadsheetStatus.active) {
-      result = 'actief';
-    } else if (AppData.instance.getSpreadsheet().status ==
-        SpreadsheetStatus.underConstruction) {
-      result = 'onderhanden';
-    } else if (AppData.instance.getSpreadsheet().status ==
-        SpreadsheetStatus.opened) {
-      result = 'geopend';
-    } else if (AppData.instance.getSpreadsheet().status ==
-        SpreadsheetStatus.dirty) {
-      result = 'aangepast';
-    }
-
-    return result;
   }
 
   void _findTrainer(String accessCode) async {
@@ -243,15 +200,8 @@ class _StartPageState extends State<StartPage> {
 
         _barTitle = _buildBarTitle();
 
-        // we go back 1 month and check if date is after the first spreadsheet date
-        _prevMonthEnabled = AppData.instance
-            .getActiveDate()
-            .add(const Duration(days: -30))
-            .isAfter(AppData.instance.firstSpreadDate);
-
-        _nextMonthEnabled = AppData.instance
-            .getActiveDate()
-            .isBefore(AppData.instance.lastMonth);
+        _prevMonthEnabled = AppData.instance.getActiveSpreadSheetIndex() > 0;
+        _nextMonthEnabled = AppData.instance.getActiveSpreadSheetIndex() == 0;
       });
     }
   }
@@ -330,47 +280,22 @@ class _StartPageState extends State<StartPage> {
 
   // onPressed actions --
   void _gotoPrevMonth() {
-    if (AppData.instance.getActiveMonth() == 1) {
-      int year = AppData.instance.getActiveYear() - 1;
-      int month = 12;
-      AppController.instance.setActiveDate(DateTime(year, month, 1));
-    } else {
-      int year = AppData.instance.getActiveYear();
-      int month = AppData.instance.getActiveMonth() - 1;
-      AppController.instance.setActiveDate(DateTime(year, month, 1));
-    }
+    AppController.instance.setActiveSpreadsheetIndex(0);
 
     if (_getStackIndex() == PageEnum.spreadsheetPage.code) {
-      _gotoSpreadsheet();
+      AppEvents.fireSpreadsheetReady();
     }
   }
 
   void _gotoNextMonth() {
-    if (AppData.instance.getActiveMonth() == 12) {
-      int year = AppData.instance.getActiveYear() + 1;
-      int month = 1;
-      AppController.instance.setActiveDate(DateTime(year, month, 1));
-    } else {
-      int year = AppData.instance.getActiveYear();
-      int month = AppData.instance.getActiveMonth() + 1;
-      AppController.instance.setActiveDate(DateTime(year, month, 1));
-    }
+    AppController.instance.setActiveSpreadsheetIndex(1);
 
     if (_getStackIndex() == PageEnum.spreadsheetPage.code) {
-      _gotoSpreadsheet();
+      AppEvents.fireSpreadsheetReady();
     }
   }
 
   void _gotoEditSchemas() async {
-    await AppController.instance.getActiveSpreadsheets();
-    setState(() {
-      _setStackIndex(PageEnum.spreadsheetPage.code);
-      _barTitle = _buildBarTitle();
-      _toggleActionEnabled(PageEnum.spreadsheetPage.code);
-    });
-  }
-
-  void _gotoSpreadsheet() async {
     await AppController.instance.getActiveSpreadsheets();
     setState(() {
       _setStackIndex(PageEnum.spreadsheetPage.code);
@@ -417,7 +342,7 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _showStatusHelpDialog() {
-    String title = _getBarTitleForSpreadhsheetPage();
+    String title = _getBarTitleForSpreadsheetPage();
     Widget closeButton = TextButton(
       onPressed: () {
         Navigator.of(context, rootNavigator: true)
@@ -438,10 +363,5 @@ class _StartPageState extends State<StartPage> {
         return alert;
       },
     );
-  }
-
-  //--------------------
-  bool _isLargeScreen() {
-    return (AppHelper.instance.isWindows() || AppHelper.instance.isTablet());
   }
 }

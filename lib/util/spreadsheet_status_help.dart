@@ -8,14 +8,8 @@ String helpText() {
       SpreadsheetStatus.underConstruction) {
     return _helpUnderConstruction;
   } else if (AppData.instance.getSpreadsheet().status ==
-      SpreadsheetStatus.opened) {
-    return _helpOpened;
-  } else if (AppData.instance.getSpreadsheet().status ==
       SpreadsheetStatus.old) {
     return _helpOld;
-  } else if (AppData.instance.getSpreadsheet().status ==
-      SpreadsheetStatus.dirty) {
-    return _helpDirty;
   }
   return _helpUnknown;
 }
@@ -35,25 +29,10 @@ Op basis van input van trainers zal dit programma willekeurig beschikbare traine
 Neem de trainingen dus pas over in je eigen agenda als het schema definitief is!. 
 ''';
 
-String _helpOpened = '''
-Geopend betekend dat dit schema al definitief is,
-maar dat er aanpassingen gemaakt kunnen worden.
-De hoofdtrainer kan alles aanpassen,
-de trainers kunnen onderling trainingen ruilen.
-De ZaMo trainer kunnen de starttijd en/of locatie aanpassen.
-''';
-
 String _helpOld = '''
 Verlopen betekend dat dit schema al lang definitief is.
 Het heeft dan ook geen zin om aanpassingen te maken.
 Dit schema zal op een gegeven moment van de website van Lonu verdwijnen.
-''';
-
-String _helpDirty = '''
-Aangepast betekend dat er nu openstaande wijzigingen zijn,
-op een schema dat al definitief is.
-Deze wijzigingen moeten nog met Save knop rechtsonder worden opgeslagen.
-Daarna zijn deze wijzigingen ook direct zichtbaar op de website van Lonu.
 ''';
 
 String _helpUnknown = '''

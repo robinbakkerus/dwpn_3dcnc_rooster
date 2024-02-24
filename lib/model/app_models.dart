@@ -35,11 +35,9 @@ enum RunMode {
 }
 
 enum SpreadsheetStatus {
-  old,
-  underConstruction,
-  active,
-  opened,
-  dirty;
+  old("Verlopen"),
+  underConstruction("Onderhanden"),
+  active("Actief");
 
   String toMap() {
     return name;
@@ -48,6 +46,9 @@ enum SpreadsheetStatus {
   factory SpreadsheetStatus.fromMap(String type) {
     return SpreadsheetStatus.active; //todo
   }
+
+  final String display;
+  const SpreadsheetStatus(this.display);
 }
 
 enum DeviceType {

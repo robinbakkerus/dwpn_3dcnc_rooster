@@ -50,12 +50,9 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
 
   //-----------------------
   bool _isEditable() {
-    return (AppData.instance.getSpreadsheet().status ==
-            SpreadsheetStatus.opened ||
-        AppData.instance.getSpreadsheet().status == SpreadsheetStatus.dirty ||
-        (AppData.instance.getSpreadsheet().status ==
-                SpreadsheetStatus.underConstruction &&
-            AppData.instance.getUser().isSupervisor()));
+    return ((AppData.instance.getSpreadsheet().status ==
+            SpreadsheetStatus.underConstruction &&
+        AppData.instance.getUser().isSupervisor()));
   }
 
   //--------------------------------
@@ -73,7 +70,8 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     return DataTable(
       headingRowHeight: 30,
       horizontalMargin: 10,
-      headingRowColor: MaterialStateColor.resolveWith((states) => c.lonuBlauw),
+      headingRowColor:
+          MaterialStateColor.resolveWith((states) => c.ssRowHeader),
       columnSpacing: colSpace,
       dataRowMinHeight: 15,
       dataRowMaxHeight: 30,
@@ -110,17 +108,19 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
       List<WeekdaySlot> slots =
           AppHelper.instance.getWeekDaySlotsAtDate(dateTime);
       if (slots.isNotEmpty) {
+        MaterialStateColor color = _getRowColor(dateTime);
+
         // row with date and repeating header
         DataRow dataRow = DataRow(
-          color: MaterialStateColor.resolveWith((states) => c.dayRow),
-          cells: _buildDataCells(dateTime, null),
+          color: color,
+          cells: _buildDataCells(dateTime, null, color),
         );
         result.add(dataRow);
 
         for (WeekdaySlot weekdaySlot in slots) {
           DataRow dataRow = DataRow(
-            color: _getRowColor(dateTime),
-            cells: _buildDataCells(dateTime, weekdaySlot),
+            color: color,
+            cells: _buildDataCells(dateTime, weekdaySlot, color),
           );
           result.add(dataRow);
         }
@@ -133,47 +133,60 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     MaterialStateColor col =
         MaterialStateColor.resolveWith((states) => Colors.white);
     if (date.weekday == DateTime.monday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuDonderDag);
+      col = MaterialStateColor.resolveWith((states) => c.ssRowMonday);
     } else if (date.weekday == DateTime.tuesday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuDinsDag);
+      col = MaterialStateColor.resolveWith((states) => c.ssRowTuesday);
     } else if (date.weekday == DateTime.thursday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuDonderDag);
+      col = MaterialStateColor.resolveWith((states) => c.ssRowThursday);
     } else if (date.weekday == DateTime.wednesday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuWoensdag);
+      col = MaterialStateColor.resolveWith((states) => c.ssRowWednesday);
     } else if (date.weekday == DateTime.friday) {
-      col = MaterialStateColor.resolveWith((states) => c.lonuDinsDag);
+      col = MaterialStateColor.resolveWith((states) => c.ssRowFriday);
     }
     return col;
   }
 
   //------------------------------
-  List<DataCell> _buildDataCells(DateTime dateTime, WeekdaySlot? weekdaySlot) {
+  List<DataCell> _buildDataCells(
+      DateTime dateTime, WeekdaySlot? weekdaySlot, Color color) {
     List<DataCell> result = [];
 
     result.add(_buildDayCell(dateTime, weekdaySlot));
 
     if (weekdaySlot == null) {
       for (int i = 0; i < AppData.instance.deviceList.length; i++) {
-        result.add(DataCell(Text(AppData.instance.deviceList[i].name)));
+        result.add(
+            DataCell(_repeatHeaderCell(AppData.instance.deviceList[i].name)));
       }
     } else {
       for (int i = 0; i < AppData.instance.deviceList.length; i++) {
         String devicePk = AppData.instance.deviceList[i].name;
-        result.add(_buildUserReservationCell(dateTime, weekdaySlot, devicePk));
+        result.add(
+            _buildUserReservationCell(dateTime, weekdaySlot, devicePk, color));
       }
     }
 
     return result;
   }
 
+  Widget _repeatHeaderCell(String text) {
+    return Container(
+        width: c.w1,
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey)),
+        ),
+        child: Text(text));
+  }
+
   //----------------------------
-  DataCell _buildUserReservationCell(
-      DateTime dateTime, WeekdaySlot weekdaySlot, String devicePk) {
+  DataCell _buildUserReservationCell(DateTime dateTime, WeekdaySlot weekdaySlot,
+      String devicePk, Color color) {
     return DataCell(SpreadsheetCell(
         key: UniqueKey(),
         dateTime: dateTime,
         weekDaySlot: weekdaySlot,
         devicePk: devicePk,
+        color: color,
         isEditable: _isEditable()));
   }
 
