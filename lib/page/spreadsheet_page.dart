@@ -204,19 +204,24 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   Widget _buildSelectWeekButtons() {
     List<int> weeknrs = AppHelper.instance
         .getWeekNumbersForMonth(AppData.instance.getActiveDate());
-    List<Widget> weeks = weeknrs
-        .map((e) => TextButton(
-            onPressed: () => _onSelectWeek(e), child: Text(_getWeekText(e))))
-        .toList();
+    List<Widget> weeks = weeknrs.map((e) => _buildSelectWeekWidget(e)).toList();
     return Row(children: weeks);
   }
 
-  String _getWeekText(int weeknr) {
+  TextButton _buildSelectWeekWidget(int weeknr) {
     String result = 'Week $weeknr';
     DateTime date1 =
         dateTimeFromWeekNumber(AppData.instance.getActiveYear(), weeknr);
     DateTime date2 = date1.add(const Duration(days: 6));
-    return result += ' (${date1.day} - ${date2.day})';
+    Widget textWidget = Text(result += ' (${date1.day} - ${date2.day})');
+    Color color =
+        _activeWeekNr == weeknr ? Colors.blue[200]! : Colors.transparent;
+    return TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: color,
+        ),
+        onPressed: () => _onSelectWeek(weeknr),
+        child: textWidget);
   }
 
   //----------------------------
