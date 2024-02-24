@@ -44,7 +44,14 @@ enum SpreadsheetStatus {
   }
 
   factory SpreadsheetStatus.fromMap(String type) {
-    return SpreadsheetStatus.active; //todo
+    switch (type) {
+      case 'old':
+        return SpreadsheetStatus.old;
+      case 'underConstruction':
+        return SpreadsheetStatus.underConstruction;
+      default:
+        return SpreadsheetStatus.active;
+    }
   }
 
   final String display;

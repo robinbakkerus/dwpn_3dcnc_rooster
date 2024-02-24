@@ -136,7 +136,7 @@ class _StartPageState extends State<StartPage> {
   String _getBarTitleForSpreadsheetPage() {
     String result = '';
     result =
-        '${AppData.instance.getActiveMonthAsString()}  (${AppData.instance.getSpreadsheet().status})';
+        '${AppData.instance.getActiveMonthAsString()}  (${AppData.instance.getSpreadsheet().status.display})';
     return result;
   }
 
