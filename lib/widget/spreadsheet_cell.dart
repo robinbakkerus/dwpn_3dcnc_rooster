@@ -1,3 +1,5 @@
+import 'dart:js_util';
+
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
@@ -27,6 +29,7 @@ class SpreadsheetCell extends StatefulWidget {
 class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   final _textTextCtrl = TextEditingController();
   String _cellText = '';
+  bool _addYesButton = false;
 
   @override
   void initState() {
@@ -115,15 +118,23 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     );
   }
 
+  bool _spreadsheetIsActive() =>
+      AppData.instance.getSpreadsheet().status == SpreadsheetStatus.active;
+
   Widget _askReservation() {
+    _addYesButton = true;
+    String prefix = 'Hallo ${_userName()}:';
     if (_reservedByMe()) {
-      String text =
-          'Hallo ${_userName()}; wil je de  reservering voor de ${widget.devicePk} annuleren?';
-      return Text(text);
+      return Text('$prefix wil je de ${widget.devicePk} annuleren?');
+    } else if (_getCellText().isEmpty || !_spreadsheetIsActive()) {
+      return Text('$prefix wil je de ${widget.devicePk} reserveren?');
+    } else if (_otherReservations().isNotEmpty && _spreadsheetIsActive()) {
+      _addYesButton = false;
+      return Text(
+          '$prefix dit timeslot is al gereserveerd en schema is definitief!');
     } else {
-      String text =
-          'Hallo ${_userName()}; wil je de ${widget.devicePk} reserveren?';
-      return Text(text);
+      _addYesButton = false;
+      return Container();
     }
   }
 
@@ -187,30 +198,38 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   Widget _buildYesAndCancelButtons(BuildContext context) {
     return Row(
       children: [
-        TextButton(
-            onPressed: () {
-              _updateCell();
-
-              AppEvents.fireReservationEvent(
-                  day: widget.dateTime.day,
-                  daySlotEnum: widget.weekDaySlot.daySlot,
-                  devicePk: widget.devicePk,
-                  user: AppData.instance.getUser(),
-                  addReservation: _addReservation());
-
-              Navigator.of(context, rootNavigator: true)
-                  .pop(); // dismisses only the dialog and returns nothing
-            },
-            child: const Text("Ja", style: TextStyle(color: Colors.green))),
+        _addYesButton ? _buildYesButton(context) : Container(),
         wh.horSpace(10),
-        TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true)
-                  .pop(); // dismisses only the dialog and returns nothing
-            },
-            child: const Text("Cancel", style: TextStyle(color: Colors.red))),
+        _buildCancelButton(context),
       ],
     );
+  }
+
+  TextButton _buildCancelButton(BuildContext context) {
+    return TextButton(
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true)
+              .pop(); // dismisses only the dialog and returns nothing
+        },
+        child: const Text("Cancel", style: TextStyle(color: Colors.red)));
+  }
+
+  TextButton _buildYesButton(BuildContext context) {
+    return TextButton(
+        onPressed: () {
+          _updateCell();
+
+          AppEvents.fireReservationEvent(
+              day: widget.dateTime.day,
+              daySlotEnum: widget.weekDaySlot.daySlot,
+              devicePk: widget.devicePk,
+              user: AppData.instance.getUser(),
+              addReservation: _addReservation());
+
+          Navigator.of(context, rootNavigator: true)
+              .pop(); // dismisses only the dialog and returns nothing
+        },
+        child: const Text("Ja", style: TextStyle(color: Colors.green)));
   }
 
   void _updateCell() {
