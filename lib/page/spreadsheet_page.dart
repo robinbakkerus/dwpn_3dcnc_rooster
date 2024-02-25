@@ -28,7 +28,6 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   @override
   void initState() {
     AppEvents.onSpreadsheetReadyEvent(_onSpreadsheetReady);
-    AppEvents.onReservationEvent(_onReservationEvent);
 
     super.initState();
   }
@@ -295,49 +294,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     wh.showSnackbar('Training schema is nu definitief!');
   }
 
-  // void _buildDialogSpreadsheetInfo(BuildContext context) {
-  //   Widget closeButton = TextButton(
-  //     onPressed: () {
-  //       Navigator.of(context, rootNavigator: true)
-  //           .pop(); // dismisses only the dialog and returns nothing
-  //     },
-  //     child: const Text("Close"),
-  //   ); // set up the AlertDialog
-  //   AlertDialog alert = AlertDialog(
-  //     title: const Text("Trainer inzet."),
-  //     content: const Text('todo'),
-  //     actions: [
-  //       closeButton,
-  //     ],
-  //   ); // show the dialog
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return alert;
-  //     },
-  //   );
-  // }
-
-  //----------------------------------
-//   void _buildOpenSchemaAlertDialog() {
-//     String content = '''
-// Dit schema is gepubliceerd!
-// Weet je zeker dat je wijzigingen wilt aanbrengen?
-// ''';
-//     wh.showConfirmDialog(context,
-//         title: 'Trainingschema',
-//         content: content,
-//         yesFunction: () => _handleYes());
-//   }
-
-  //-------------------------------
-  // void _handleYes() {
-  //   setState(() {
-  //     AppData.instance.getSpreadsheet().status = SpreadsheetStatus.opened;
-  //     AppEvents.fireSpreadsheetReady();
-  //   });
-  // }
-
+  //----------------
   void _buildDialogConfirm(BuildContext context, bool allProgramFieldSet) {
     String msg =
         "Weet je zeker dat je het schema van ${AppData.instance.getActiveMonthAsString()} definitief wilt maken";
@@ -383,25 +340,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         _activeWeekNr = DateTime(AppData.instance.getActiveYear(),
                 AppData.instance.getActiveMonth(), 1)
             .weekNumber;
-        // if (AppData.instance.getSpreadsheet().status ==
-        //     SpreadsheetStatus.active) {
-        //   wh.showSnackbar('Schema is al definitief!', color: Colors.orange);
-        // } else if (AppData.instance.getSpreadsheet().status ==
-        //     SpreadsheetStatus.old) {
-        //   wh.showSnackbar('Schema is verlopen!', color: Colors.orange);
-        // }
       });
-    }
-  }
-
-  void _onReservationEvent(ReservationEvent event) {
-    if (mounted) {
-      Reservation reservation = Reservation(
-          day: event.day,
-          daySlotEnum: event.daySlotEnum,
-          devicePk: event.devicePk,
-          userPk: AppData.instance.getUser().pk);
-      AppController.instance.saveReservation(reservation, event.addReservation);
     }
   }
 

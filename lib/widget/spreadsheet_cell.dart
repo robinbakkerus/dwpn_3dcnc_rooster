@@ -1,10 +1,9 @@
-import 'dart:js_util';
-
+import 'package:dwpn_3dcnc_rooster/controller/app_controler.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
-import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:dwpn_3dcnc_rooster/util/spreadsheet_generator.dart';
+import 'package:dwpn_3dcnc_rooster/widget/spreadsheet_daycell_dialog.dart';
 import 'package:flutter/material.dart';
 
 class SpreadsheetCell extends StatefulWidget {
@@ -29,7 +28,6 @@ class SpreadsheetCell extends StatefulWidget {
 class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   final _textTextCtrl = TextEditingController();
   String _cellText = '';
-  bool _addYesButton = false;
 
   @override
   void initState() {
@@ -80,6 +78,7 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
 
   // bool _isSupervisor() => AppData.instance.getUser().isSupervisor();
   String _userName() => AppData.instance.getUser().firstName();
+  String _userPk() => AppData.instance.getUser().pk;
 
   bool _showDialog() {
     // // String txt = widget.sheetRow.rowCells[_groupIndex].text;
@@ -87,94 +86,21 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     return true;
   }
 
-  Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
+  Future<void> _dialogBuilder(BuildContext context) async {
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          child: SizedBox(
-            height: AppData.instance.screenHeight * 0.3,
-            width: 500,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                wh.verSpace(15),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
-                  child: __showOtherReservation(),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
-                  child: _askReservation(),
-                ),
-                wh.verSpace(10),
-                _buildYesAndCancelButtons(context),
-              ],
-            ),
+          child: DayCellDialogWidget(
+            key: UniqueKey(),
+            userName: _userName(),
+            cellText: _cellText,
+            devicePk: widget.devicePk,
+            spreadsheetIsActive: _spreadsheetIsActive(),
           ),
         );
       },
-    );
-  }
-
-  bool _spreadsheetIsActive() =>
-      AppData.instance.getSpreadsheet().status == SpreadsheetStatus.active;
-
-  Widget _askReservation() {
-    _addYesButton = true;
-    String prefix = 'Hallo ${_userName()}:';
-    if (_reservedByMe()) {
-      return Text('$prefix wil je de ${widget.devicePk} annuleren?');
-    } else if (_getCellText().isEmpty || !_spreadsheetIsActive()) {
-      return Text('$prefix wil je de ${widget.devicePk} reserveren?');
-    } else if (_otherReservations().isNotEmpty && _spreadsheetIsActive()) {
-      _addYesButton = false;
-      return Text(
-          '$prefix dit timeslot is al gereserveerd en schema is definitief!');
-    } else {
-      _addYesButton = false;
-      return Container();
-    }
-  }
-
-  Widget __showOtherReservation() {
-    if (_otherReservations().isNotEmpty) {
-      String txt = '''Deze is al gereserveerd door: ${_otherReservations()}
-      ''';
-      return Text(txt);
-    } else {
-      return Container();
-    }
-  }
-
-  String _otherReservations() {
-    String txt = _getCellText();
-    if (txt.isNotEmpty) {
-      List<String> list = txt.replaceAll(' ', '').split(',');
-      List<String> result = [];
-      for (String name in list) {
-        if (name != _userName()) {
-          result.add(name);
-        }
-      }
-      return result.join(', ');
-    } else {
-      return '';
-    }
-  }
-
-  bool _reservedByMe() {
-    String txt = _getCellText();
-    if (txt.isNotEmpty) {
-      List<String> list = txt.replaceAll(' ', '').split(',');
-      for (String name in list) {
-        if (name == _userName()) {
-          return true;
-        }
-      }
-    }
-    return false;
+    ).then((value) => _updateCell(value));
   }
 
   String _getCellText() {
@@ -185,60 +111,57 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
         user: AppData.instance.getUser());
   }
 
-  // bool _isSameTrainer() {
-  //   String name = _getCellText();
-  //   User trainer = AppHelper.instance.findUserByFirstName(name);
-  //   if (!trainer.isEmpty()) {
-  //     return trainer.pk == AppData.instance.getUser().pk;
-  //   } else {
-  //     return false;
-  //   }
-  // }
+  bool _spreadsheetIsActive() =>
+      AppData.instance.getSpreadsheet().status == SpreadsheetStatus.active;
 
-  Widget _buildYesAndCancelButtons(BuildContext context) {
-    return Row(
-      children: [
-        _addYesButton ? _buildYesButton(context) : Container(),
-        wh.horSpace(10),
-        _buildCancelButton(context),
-      ],
-    );
-  }
+  //------------------------------
+  void _updateCell(ReservationAction action) async {
+    if (action == ReservationAction.none) {
+      return;
+    }
 
-  TextButton _buildCancelButton(BuildContext context) {
-    return TextButton(
-        onPressed: () {
-          Navigator.of(context, rootNavigator: true)
-              .pop(); // dismisses only the dialog and returns nothing
-        },
-        child: const Text("Cancel", style: TextStyle(color: Colors.red)));
-  }
+    List<Reservation> addReservations = [];
+    List<Reservation> cancelReservations = [];
+    _fillReservationLists(action, addReservations, cancelReservations);
 
-  TextButton _buildYesButton(BuildContext context) {
-    return TextButton(
-        onPressed: () {
-          _updateCell();
+    for (Reservation reservation in addReservations) {
+      await AppController.instance.saveReservation(reservation, true);
+    }
+    for (Reservation reservation in cancelReservations) {
+      await AppController.instance.saveReservation(reservation, false);
+    }
 
-          AppEvents.fireReservationEvent(
-              day: widget.dateTime.day,
-              daySlotEnum: widget.weekDaySlot.daySlot,
-              devicePk: widget.devicePk,
-              user: AppData.instance.getUser(),
-              addReservation: _addReservation());
-
-          Navigator.of(context, rootNavigator: true)
-              .pop(); // dismisses only the dialog and returns nothing
-        },
-        child: const Text("Ja", style: TextStyle(color: Colors.green)));
-  }
-
-  void _updateCell() {
     setState(() {
       _cellText = '${_userName()}, ${_getCellText()}';
     });
   }
 
-  bool _addReservation() {
-    return _reservedByMe() ? false : true;
+  void _fillReservationLists(ReservationAction action,
+      List<Reservation> addReservations, List<Reservation> cancelReservations) {
+    if (action == ReservationAction.addDay) {
+      addReservations.add(_buildReservation(widget.dateTime));
+    } else if (action == ReservationAction.cancelDay) {
+      cancelReservations.add(_buildReservation(widget.dateTime));
+    } else if (action == ReservationAction.addRange) {
+      DateTime startDate = widget.dateTime;
+      while (startDate.month == widget.dateTime.month) {
+        addReservations.add(_buildReservation(startDate));
+        startDate = startDate.add(const Duration(days: 7));
+      }
+    } else if (action == ReservationAction.cancelRange) {
+      DateTime startDate = widget.dateTime;
+      while (startDate.month == widget.dateTime.month) {
+        cancelReservations.add(_buildReservation(startDate));
+        startDate = startDate.add(const Duration(days: 7));
+      }
+    }
+  }
+
+  Reservation _buildReservation(DateTime date) {
+    return Reservation(
+        day: date.day,
+        daySlotEnum: widget.weekDaySlot.daySlot,
+        devicePk: widget.devicePk,
+        userPk: _userPk());
   }
 }

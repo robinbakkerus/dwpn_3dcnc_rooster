@@ -1,7 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:math';
-// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
