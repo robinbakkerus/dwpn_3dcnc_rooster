@@ -286,6 +286,14 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             wh.horSpace(20),
+            InkWell(
+                onTap: _onShowSpreadsheetInfo,
+                child: const Icon(
+                  Icons.info_outline,
+                  size: 32,
+                  color: Colors.lightBlue,
+                )),
+            wh.horSpace(10),
             buildActionButton(context),
           ],
         ),
@@ -383,5 +391,48 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   //--------------------------------
   bool isSupervisor() {
     return AppData.instance.getUser().isSupervisor();
+  }
+
+  void _onShowSpreadsheetInfo() {
+    _buildDialogSpreadsheetInfo(context);
+  }
+
+  void _buildDialogSpreadsheetInfo(BuildContext context) {
+    Widget closeButton = TextButton(
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true)
+            .pop(); // dismisses only the dialog and returns nothing
+      },
+      child: const Text("Close"),
+    ); // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Reserveringen"),
+      content: Text(_getReservations()),
+      actions: [
+        closeButton,
+      ],
+    ); // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  String _getReservations() {
+    String result = 'Van  ${AppData.instance.getUser().fullname} : ';
+    for (Device dev in AppData.instance.deviceList) {
+      List<Reservation> reservations = AppData.instance
+          .getSpreadsheet()
+          .reservations
+          .where((e) => e.devicePk == dev.name)
+          .toList();
+
+      if (reservations.isNotEmpty) {
+        result += "\n${dev.name}: ${reservations.length}";
+      }
+    }
+    return result;
   }
 }
