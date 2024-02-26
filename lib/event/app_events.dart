@@ -11,11 +11,9 @@ class ShowPageEvent {
   ShowPageEvent(this.page);
 }
 
-class TrainerReadyEvent {}
+class ActiveUserReadyEvent {}
 
-class TrainerDataReadyEvent {}
-
-class SchemaUpdatedEvent {}
+class LogoutEvent {}
 
 // event that is send from widget with radiobuttons, to tell parent page that some value is changed
 class TrainerUpdatedEvent {
@@ -81,12 +79,9 @@ class AppEvents {
   static void fireShowPage(PageEnum page) =>
       _sEventBus.fire(ShowPageEvent(page));
 
-  static void fireTrainerReady() => _sEventBus.fire(TrainerReadyEvent());
+  static void fireActiveUserReady() => _sEventBus.fire(ActiveUserReadyEvent());
 
-  static void fireTrainerDataReady() =>
-      _sEventBus.fire(TrainerDataReadyEvent());
-
-  static void fireSchemaUpdated() => _sEventBus.fire(SchemaUpdatedEvent());
+  static void fireLogOutEvent() => _sEventBus.fire(LogoutEvent());
   static void fireTrainerUpdated(User trainer) =>
       _sEventBus.fire(TrainerUpdatedEvent(trainer: trainer));
 
@@ -119,11 +114,11 @@ class AppEvents {
   static void onShowPage(OnShowPageFunc func) =>
       _sEventBus.on<ShowPageEvent>().listen((event) => func(event));
 
-  static void onTrainerReadyEvent(OnTrainerReadyEventFunc func) =>
-      _sEventBus.on<TrainerReadyEvent>().listen((event) => func(event));
+  static void onUserReadyEvent(OnTrainerReadyEventFunc func) =>
+      _sEventBus.on<ActiveUserReadyEvent>().listen((event) => func(event));
 
-  static void onSchemaUpdatedEvent(OnSchemaUpdateEventFunc func) =>
-      _sEventBus.on<SchemaUpdatedEvent>().listen((event) => func(event));
+  static void onLogoutEvent(OnLogoutEventFunc func) =>
+      _sEventBus.on<LogoutEvent>().listen((event) => func(event));
 
   static void onTrainerUpdatedEvent(OnTrainerUpdatedEventFunc func) =>
       _sEventBus.on<TrainerUpdatedEvent>().listen((event) => func(event));
@@ -147,9 +142,9 @@ class AppEvents {
 /// ----- typedef's -----------
 typedef OnShowPageFunc = void Function(ShowPageEvent event);
 
-typedef OnTrainerReadyEventFunc = void Function(TrainerReadyEvent event);
+typedef OnTrainerReadyEventFunc = void Function(ActiveUserReadyEvent event);
 
-typedef OnSchemaUpdateEventFunc = void Function(SchemaUpdatedEvent event);
+typedef OnLogoutEventFunc = void Function(LogoutEvent event);
 
 typedef OnTrainerUpdatedEventFunc = void Function(TrainerUpdatedEvent event);
 

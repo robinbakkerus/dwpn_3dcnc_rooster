@@ -28,6 +28,7 @@ class AppConstants {
   final Color ssRowMonday = Colors.blue[100]!;
   final Color dayRow = const Color(0xff00EDFF);
 
+  final double h1 = 0.1 * AppData.instance.screenHeight;
   final double w1 = 0.1 * AppData.instance.screenWidth;
   final double w2 = 0.2 * AppData.instance.screenWidth;
   final double w12 = 0.12 * AppData.instance.screenWidth;

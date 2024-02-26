@@ -1,5 +1,6 @@
 import 'package:dwpn_3dcnc_rooster/controller/app_controler.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
+import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:dwpn_3dcnc_rooster/widget/send_accesscode_widget.dart';
@@ -19,8 +20,9 @@ class _AskAccessCodePageState extends State<AskAccessCodePage> with AppMixin {
 
   @override
   void initState() {
-    super.initState();
     _setup();
+    AppEvents.onLogoutEvent(_onLogOut);
+    super.initState();
   }
 
   void _setup() {
@@ -33,7 +35,7 @@ class _AskAccessCodePageState extends State<AskAccessCodePage> with AppMixin {
 
   @override
   void dispose() {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < _textCtrls.length; i++) {
       _textCtrls[i].dispose();
       _focusNodes[i].dispose();
     }
@@ -91,6 +93,10 @@ class _AskAccessCodePageState extends State<AskAccessCodePage> with AppMixin {
   }
 
   Widget _buildTextField(int index) {
+    if (_textCtrls.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     bool autoFocus = index == 0;
     TextEditingController ctrl = _textCtrls[index];
     return SizedBox(
@@ -124,16 +130,16 @@ class _AskAccessCodePageState extends State<AskAccessCodePage> with AppMixin {
 
   void _onTextFieldChanged() async {
     String text = '';
-    for (int i = 0; i < 4; i++) {
-      text += _textCtrls[i].text;
+    for (TextEditingController ctrl in _textCtrls) {
+      text += ctrl.text;
     }
     if (text.length == 4 && !_findTriggered) {
       String accessCode = text.toUpperCase();
-      await _findTrainer(accessCode);
+      await _findActiveUser(accessCode);
     }
   }
 
-  Future<void> _findTrainer(String accesscode) async {
+  Future<void> _findActiveUser(String accesscode) async {
     _findTriggered = true;
     bool flag = await AppController.instance.findUser(accesscode);
     _findTriggered = false;
@@ -168,5 +174,11 @@ class _AskAccessCodePageState extends State<AskAccessCodePage> with AppMixin {
         return alert;
       },
     );
+  }
+
+  void _onLogOut(LogoutEvent event) {
+    for (TextEditingController ctrl in _textCtrls) {
+      ctrl.text = '';
+    }
   }
 }

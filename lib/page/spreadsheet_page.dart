@@ -34,7 +34,6 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
 
   @override
   Widget build(BuildContext context) {
-    _dataGrid = _buildGrid(context);
     return Scaffold(
       body: _buildBody(),
     );
@@ -57,14 +56,17 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   Widget _buildGrid(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSelectWeekButtons(),
-        _buildDataTable(context),
-        _buildBottomButtons(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSelectWeekButtons(),
+          _buildDataTable(context),
+          _buildBottomButtons(),
+        ],
+      ),
     );
   }
 
@@ -109,6 +111,8 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     dates = dates
         .where((e) => e.month == AppData.instance.getActiveMonth())
         .toList();
+
+    lp('todo buildDataRows ${dates.length}');
 
     for (DateTime dateTime in dates) {
       List<WeekdaySlot> slots =
@@ -230,6 +234,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   void _onSelectWeek(int weeknr) {
     setState(() {
       _activeWeekNr = weeknr;
+      _dataGrid = _buildGrid(context);
     });
   }
 
@@ -242,14 +247,6 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            wh.horSpace(10),
-            const InkWell(
-                onTap: null,
-                child: Icon(
-                  Icons.info_outline,
-                  size: 32,
-                  color: Colors.lightBlue,
-                )),
             wh.horSpace(20),
             _buildActionButton(context),
           ],
@@ -340,6 +337,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         _activeWeekNr = DateTime(AppData.instance.getActiveYear(),
                 AppData.instance.getActiveMonth(), 1)
             .weekNumber;
+        _dataGrid = _buildGrid(context);
       });
     }
   }

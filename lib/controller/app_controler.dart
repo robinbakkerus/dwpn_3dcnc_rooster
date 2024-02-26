@@ -46,7 +46,7 @@ class AppController {
     if (signInOkay) {
       _setCookieIfNeeded(user, accessCode);
       AppData.instance.setUser(user);
-      AppEvents.fireTrainerReady();
+      AppEvents.fireActiveUserReady();
       return true;
     }
     // } else {
@@ -91,6 +91,7 @@ class AppController {
     }
 
     AppData.instance.setActiveSpreadSheetIndex(0);
+    log('todo rsv ${AppData.instance.getSpreadsheet().reservations.length}');
     AppEvents.fireSpreadsheetReady();
   }
 
@@ -167,8 +168,6 @@ class AppController {
       } else {
         AppData.instance.getSpreadsheet().reservations.remove(reservation);
       }
-
-      // AppEvents.fireSpreadsheetReady();
     } catch (ex, stackTrace) {
       handleError(ex, stackTrace);
     }

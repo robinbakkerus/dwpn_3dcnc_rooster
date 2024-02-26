@@ -20,7 +20,11 @@ class AppData {
   double shortestSide = 600; //assume
   String trainerId = "";
 
-  int stackIndex = 0;
+  int _stackIndex = 0;
+  int getStackIndex() => _stackIndex;
+  void setStackIndex(int value) {
+    _stackIndex = value;
+  }
 
   User _user = User.empty();
   User getUser() {

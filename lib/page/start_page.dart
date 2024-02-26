@@ -14,6 +14,7 @@ import 'package:dwpn_3dcnc_rooster/util/app_constants.dart';
 import 'package:dwpn_3dcnc_rooster/util/spreadsheet_status_help.dart'
     as status_help;
 import 'package:dwpn_3dcnc_rooster/widget/busy_indicator.dart';
+import 'package:dwpn_3dcnc_rooster/widget/user_info_widget.dart';
 import 'package:dwpn_3dcnc_rooster/widget/widget_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
@@ -39,16 +40,18 @@ class _StartPageState extends State<StartPage> {
 
   @override
   void initState() {
+    _setStackIndex(PageEnum.splashPage.code);
     _getMetaData();
     _getAllUsers();
     _getSpreadsheets();
     _accessCode = _checkCookie(); // this may be empty
     AppEvents.onErrorEvent(_onErrorEvent);
-    AppEvents.onTrainerReadyEvent(_onTrainerReady);
+    AppEvents.onUserReadyEvent(_onUserReady);
     AppEvents.onSpreadsheetReadyEvent(_onSpreadsheetReady);
     AppEvents.onShowPage(_onShowPage);
+    AppEvents.onLogoutEvent(_onLogOut);
 
-    Timer(const Duration(milliseconds: 2900), () {
+    Timer(const Duration(milliseconds: 3900), () {
       WidgetHelper.instance.playWhooshSound();
       if (_accessCode.length == 4) {
         _findTrainer(_accessCode);
@@ -82,7 +85,7 @@ class _StartPageState extends State<StartPage> {
 
   Color _runModeColor() {
     if (AppData.instance.runMode == RunMode.prod) {
-      return Colors.white;
+      return Colors.amber[100]!;
     } else {
       return AppData.instance.runMode == RunMode.dev
           ? Colors.lightGreen
@@ -103,21 +106,45 @@ class _StartPageState extends State<StartPage> {
         _actionNextMonth(),
         _buildPopMenu(),
       ],
+      bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: Container(
+            color: Colors.grey,
+            height: 2.0,
+          )),
     );
   }
 
   Widget _buildBarTitle() {
     String title = _getBarTitle();
+    Widget titleWidget;
+
     if (_getStackIndex() == PageEnum.spreadsheetPage.code) {
-      return _buildSpreadsheetStatusBarTitle(title);
+      titleWidget = _buildSpreadsheetStatusBarTitle(title);
     } else {
-      return SizedBox(
+      titleWidget = SizedBox(
           width: AppConstants().w1 * 5,
           child: Text(
             title,
             overflow: TextOverflow.ellipsis,
           ));
     }
+
+    return Row(
+      children: [_buildUserNameWidget(), titleWidget],
+    );
+  }
+
+  Widget _buildUserNameWidget() {
+    return ElevatedButton(
+      onPressed: _showUserInfoDialog,
+      style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue[200]!,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          )),
+      child: Text(AppData.instance.getUser().pk),
+    );
   }
 
   String _getBarTitle() {
@@ -154,12 +181,12 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _findTrainer(String accessCode) async {
-    bool okay = await AppController.instance.findUser(accessCode);
-    if (!okay) {
-      setState(() {
-        _setStackIndex(1);
-      });
-    }
+    await AppController.instance.findUser(accessCode);
+    // if (!okay) {
+    //   setState(() {
+    //     // _setStackIndex(1);
+    //   });
+    // }
   }
 
   @override
@@ -176,14 +203,16 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _getSpreadsheets() async {
-    AppController.instance.getActiveSpreadsheets();
+    await AppController.instance.getActiveSpreadsheets();
   }
 
-  void _onTrainerReady(TrainerReadyEvent event) async {
+  void _onUserReady(ActiveUserReadyEvent event) async {
     if (mounted) {
-      await AppController.instance.getActiveSpreadsheets();
       setState(() {
-        _setStackIndex(2);
+        _setStackIndex(PageEnum.spreadsheetPage.code);
+        _barTitle = _buildBarTitle();
+
+        AppEvents.fireSpreadsheetReady();
       });
     }
   }
@@ -194,9 +223,9 @@ class _StartPageState extends State<StartPage> {
       setState(() {
         _barTitle = _buildBarTitle();
 
-        if (_getStackIndex() != PageEnum.spreadsheetPage.code) {
-          _setStackIndex(2);
-        }
+        // if (_getStackIndex() != PageEnum.spreadsheetPage.code) {
+        //   _setStackIndex(PageEnum.spreadsheetPage.code);
+        // }
 
         _barTitle = _buildBarTitle();
 
@@ -214,9 +243,16 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
+  void _onLogOut(LogoutEvent event) {
+    html.document.cookie = "ac=";
+    setState(() {
+      _setStackIndex(PageEnum.askAccessCode.code);
+    });
+  }
+
   void _onErrorEvent(ErrorEvent event) {
     setState(() {
-      AppData.instance.stackIndex = PageEnum.errorPage.code;
+      AppData.instance.setStackIndex(PageEnum.errorPage.code);
     });
   }
 
@@ -224,7 +260,7 @@ class _StartPageState extends State<StartPage> {
     return PopupMenuButton(
       onSelected: (value) {
         if (value == PageEnum.spreadsheetPage.code.toString()) {
-          _gotoEditSchemas();
+          _gotoSpreadsheetPage();
         } else if (value == PageEnum.helpPage.code.toString()) {
           _gotoHelpPage();
         } else if (value == PageEnum.adminPage.code.toString()) {
@@ -295,7 +331,7 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
-  void _gotoEditSchemas() async {
+  void _gotoSpreadsheetPage() async {
     await AppController.instance.getActiveSpreadsheets();
     setState(() {
       _setStackIndex(PageEnum.spreadsheetPage.code);
@@ -336,9 +372,9 @@ class _StartPageState extends State<StartPage> {
     return '';
   }
 
-  int _getStackIndex() => AppData.instance.stackIndex;
+  int _getStackIndex() => AppData.instance.getStackIndex();
   void _setStackIndex(int value) {
-    AppData.instance.stackIndex = value;
+    AppData.instance.setStackIndex(value);
   }
 
   void _showStatusHelpDialog() {
@@ -353,6 +389,30 @@ class _StartPageState extends State<StartPage> {
     AlertDialog alert = AlertDialog(
       title: Text(title),
       content: Text(status_help.helpText()),
+      actions: [
+        closeButton,
+      ],
+    ); // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _showUserInfoDialog() {
+    String title = "Gebruiker";
+    Widget closeButton = TextButton(
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true)
+            .pop(); // dismisses only the dialog and returns nothing
+      },
+      child: const Text("Close"),
+    ); // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: UserInfo(),
       actions: [
         closeButton,
       ],
