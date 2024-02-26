@@ -1,5 +1,6 @@
 import 'package:dwpn_3dcnc_rooster/controller/app_controler.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
+import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:dwpn_3dcnc_rooster/util/spreadsheet_generator.dart';
@@ -137,6 +138,10 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     setState(() {
       _cellText = '${_userName()}, ${_getCellText()}';
     });
+
+    if (addReservations.length > 1 || cancelReservations.length > 1) {
+      AppEvents.fireSpreadsheetReady();
+    }
   }
 
   void _fillReservationLists(ReservationAction action,
@@ -154,7 +159,7 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     } else if (action == ReservationAction.cancelRange) {
       DateTime startDate = widget.dateTime;
       while (startDate.month == widget.dateTime.month) {
-        addReservations.add(_buildReservation(startDate));
+        cancelReservations.add(_buildReservation(startDate));
         startDate = startDate.add(const Duration(days: 7));
       }
     }
