@@ -271,7 +271,7 @@ class _StartPageState extends State<StartPage> {
         return [
           PopupMenuItem(
             value: PageEnum.spreadsheetPage.code.toString(),
-            child: const Text("User reserveringen"),
+            child: const Text("Schema"),
           ),
           PopupMenuItem(
             value: PageEnum.helpPage.code.toString(),
