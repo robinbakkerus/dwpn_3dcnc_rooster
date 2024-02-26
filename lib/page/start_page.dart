@@ -136,14 +136,18 @@ class _StartPageState extends State<StartPage> {
   }
 
   Widget _buildUserNameWidget() {
-    return ElevatedButton(
+    return ElevatedButton.icon(
       onPressed: _showUserInfoDialog,
       style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue[200]!,
+          backgroundColor: Colors.blue[100]!,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           )),
-      child: Text(AppData.instance.getUser().pk),
+      icon: const Icon(
+        Icons.person,
+        size: 24.0,
+      ),
+      label: Text(AppData.instance.getUser().pk),
     );
   }
 
