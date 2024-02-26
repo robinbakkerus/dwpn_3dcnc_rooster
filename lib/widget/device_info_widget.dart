@@ -17,13 +17,15 @@ class DeviceInfo extends StatelessWidget with AppMixin {
     return SizedBox(
       width: c.w1 * 4,
       height: c.h1 * 7,
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildDeviceINfoRow(), _showReservationCounts()]),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _buildDeviceInfoRow(),
+        _showReservationCounts(),
+        _showImage()
+      ]),
     );
   }
 
-  Widget _buildDeviceINfoRow() {
+  Widget _buildDeviceInfoRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -57,5 +59,15 @@ class DeviceInfo extends StatelessWidget with AppMixin {
     List<Reservation> list =
         ss.reservations.where((e) => e.devicePk == devicePk).toList();
     return list.length;
+  }
+
+  Widget _showImage() {
+    return SizedBox(
+        width: c.w1 * 3,
+        height: c.h1 * 3,
+        child: Image.asset(
+          '${devicePk.toLowerCase()}.jpg',
+          fit: BoxFit.fill,
+        ));
   }
 }

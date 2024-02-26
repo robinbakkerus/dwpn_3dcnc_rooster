@@ -54,12 +54,12 @@ SpreadSheet _spreadSheetMarch() {
 List<Device> allDevices() {
   List<Device> result = [];
 
-  result.add(_buildDevice('PR1', 'Bamboo Lujia ', DeviceType.printer));
-  result.add(_buildDevice('PR2', 'Bamboo Romeo ', DeviceType.printer));
-  result.add(_buildDevice('PR3', '3d printer ', DeviceType.printer));
-  result.add(_buildDevice('LAS1', 'Laser links ', DeviceType.laser));
-  result.add(_buildDevice('LAS2', 'Laser rechts ', DeviceType.laser));
-  result.add(_buildDevice('GRA1', 'Graveer machine ', DeviceType.engrave));
+  result.add(_buildDevice('BLAB_L', 'Bamboo Lujia ', DeviceType.printer));
+  result.add(_buildDevice('BLAB_R', 'Bamboo Romeo ', DeviceType.printer));
+  result.add(_buildDevice('ADV9', '3d printer ', DeviceType.printer));
+  result.add(_buildDevice('LAS_L', 'Laser links ', DeviceType.laser));
+  result.add(_buildDevice('LAS_R', 'Laser rechts ', DeviceType.laser));
+  result.add(_buildDevice('GRF1', 'Graveer machine ', DeviceType.engrave));
 
   return result;
 }
@@ -108,22 +108,22 @@ List<Reservation> allReservationsMaart() {
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'PR1',
+      devicePk: 'BLAB_L',
       userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'PR2',
+      devicePk: 'BLAB_R',
       userPk: userBill.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.afternoon,
-      devicePk: 'PR3',
+      devicePk: 'ADV9',
       userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'PR1',
+      devicePk: 'BLAB_L',
       userPk: userMarc.pk));
 
   return result;

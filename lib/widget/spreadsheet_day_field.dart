@@ -50,10 +50,10 @@ class _SpreadsheetDayColumnState extends State<SpreadsheetDayColumn>
   }
 
   Decoration? _buildDecoration() {
-    if (widget.weekdaySlot == null) {
-      return const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey)));
-    }
+    // if (widget.weekdaySlot == null) {
+    //   return const BoxDecoration(
+    //       border: Border(bottom: BorderSide(color: Colors.grey)));
+    // }
 
     Decoration? decoration = _isEditable()
         ? BoxDecoration(border: Border.all(width: 0.1, color: Colors.grey))
@@ -65,7 +65,7 @@ class _SpreadsheetDayColumnState extends State<SpreadsheetDayColumn>
     if (widget.weekdaySlot == null) {
       return AppHelper.instance.getSimpleDayString(widget.dateTime);
     } else {
-      String result = widget.weekdaySlot!.daySlot.name;
+      String result = widget.weekdaySlot!.daySlot.name.toLowerCase();
       return result;
     }
   }

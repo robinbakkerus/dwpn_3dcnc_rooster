@@ -82,18 +82,22 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
       columnSpacing: colSpace,
       dataRowMinHeight: 15,
       dataRowMaxHeight: 30,
-      columns: _buildHeader(),
+      columns: _buildDataTableColumns(),
       rows: _buildDataRows(),
     );
   }
 
   //-------------------------
-  List<DataColumn> _buildHeader() {
+  List<DataColumn> _buildDataTableColumns() {
     List<DataColumn> result = [];
 
-    result.add(const DataColumn(
-        label:
-            Text('Dag deel', style: TextStyle(fontStyle: FontStyle.italic))));
+    List<DateTime> dates = AppHelper.instance.getAllDatesInWeek(_activeWeekNr);
+    DateTime firstDate = dates[0];
+    String dag = AppHelper.instance.getSimpleDayString(firstDate);
+
+    result.add(DataColumn(
+      label: Text(dag),
+    ));
 
     for (Device device in AppData.instance.deviceList) {
       result.add(DataColumn(label: _buildHeaderCell(device.name)));
@@ -145,23 +149,30 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         .where((e) => e.month == AppData.instance.getActiveMonth())
         .toList();
 
+    int rowNr = 0;
     for (DateTime dateTime in dates) {
       List<WeekdaySlot> slots =
           AppHelper.instance.getWeekDaySlotsAtDate(dateTime);
+
       if (slots.isNotEmpty) {
-        MaterialStateColor color = _getRowColor(dateTime);
+        MaterialStateColor headerColor =
+            MaterialStateColor.resolveWith((states) => c.ssRowHeader);
+        MaterialStateColor color = getRowColor(dateTime);
 
         // row with date and repeating header
-        DataRow dataRow = DataRow(
-          color: color,
-          cells: _buildDataCells(dateTime, null, color),
-        );
-        result.add(dataRow);
+        if (rowNr > 0) {
+          DataRow dataRow = DataRow(
+            color: headerColor,
+            cells: buildDataCells(dateTime, null, headerColor),
+          );
+          result.add(dataRow);
+        }
+        rowNr++;
 
         for (WeekdaySlot weekdaySlot in slots) {
           DataRow dataRow = DataRow(
             color: color,
-            cells: _buildDataCells(dateTime, weekdaySlot, color),
+            cells: buildDataCells(dateTime, weekdaySlot, color),
           );
           result.add(dataRow);
         }
@@ -170,57 +181,53 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     return result;
   }
 
-  MaterialStateColor _getRowColor(DateTime date) {
-    MaterialStateColor col =
-        MaterialStateColor.resolveWith((states) => Colors.white);
-    if (date.weekday == DateTime.monday) {
-      col = MaterialStateColor.resolveWith((states) => c.ssRowMonday);
-    } else if (date.weekday == DateTime.tuesday) {
-      col = MaterialStateColor.resolveWith((states) => c.ssRowTuesday);
-    } else if (date.weekday == DateTime.thursday) {
-      col = MaterialStateColor.resolveWith((states) => c.ssRowThursday);
-    } else if (date.weekday == DateTime.wednesday) {
-      col = MaterialStateColor.resolveWith((states) => c.ssRowWednesday);
-    } else if (date.weekday == DateTime.friday) {
-      col = MaterialStateColor.resolveWith((states) => c.ssRowFriday);
-    }
-    return col;
+  MaterialStateColor getRowColor(DateTime date) {
+    return MaterialStateColor.resolveWith((states) => c.ssRowFriday);
+    // MaterialStateColor col =
+    //     MaterialStateColor.resolveWith((states) => Colors.white);
+    // if (date.weekday == DateTime.monday) {
+    //   col = MaterialStateColor.resolveWith((states) => c.ssRowMonday);
+    // } else if (date.weekday == DateTime.tuesday) {
+    //   col = MaterialStateColor.resolveWith((states) => c.ssRowTuesday);
+    // } else if (date.weekday == DateTime.thursday) {
+    //   col = MaterialStateColor.resolveWith((states) => c.ssRowThursday);
+    // } else if (date.weekday == DateTime.wednesday) {
+    //   col = MaterialStateColor.resolveWith((states) => c.ssRowWednesday);
+    // } else if (date.weekday == DateTime.friday) {
+    //   col = MaterialStateColor.resolveWith((states) => c.ssRowFriday);
+    // }
+    // return col;
   }
 
   //------------------------------
-  List<DataCell> _buildDataCells(
+  List<DataCell> buildDataCells(
       DateTime dateTime, WeekdaySlot? weekdaySlot, Color color) {
     List<DataCell> result = [];
 
-    result.add(_buildDayCell(dateTime, weekdaySlot));
+    result.add(buildDayCell(dateTime, weekdaySlot));
 
     if (weekdaySlot == null) {
       for (int i = 0; i < AppData.instance.deviceList.length; i++) {
         result.add(
-            DataCell(_repeatHeaderCell(AppData.instance.deviceList[i].name)));
+            DataCell(repeatHeaderCell(AppData.instance.deviceList[i].name)));
       }
     } else {
       for (int i = 0; i < AppData.instance.deviceList.length; i++) {
         String devicePk = AppData.instance.deviceList[i].name;
         result.add(
-            _buildUserReservationCell(dateTime, weekdaySlot, devicePk, color));
+            buildUserReservationCell(dateTime, weekdaySlot, devicePk, color));
       }
     }
 
     return result;
   }
 
-  Widget _repeatHeaderCell(String text) {
-    return Container(
-        width: c.w1,
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey)),
-        ),
-        child: Text(text));
+  Widget repeatHeaderCell(String text) {
+    return SizedBox(width: c.w1, child: Text(text));
   }
 
   //----------------------------
-  DataCell _buildUserReservationCell(DateTime dateTime, WeekdaySlot weekdaySlot,
+  DataCell buildUserReservationCell(DateTime dateTime, WeekdaySlot weekdaySlot,
       String devicePk, Color color) {
     return DataCell(SpreadsheetCell(
         key: UniqueKey(),
@@ -232,7 +239,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   //----------------------------
-  DataCell _buildDayCell(DateTime dateTime, WeekdaySlot? weekdaySlot) {
+  DataCell buildDayCell(DateTime dateTime, WeekdaySlot? weekdaySlot) {
     return DataCell(SpreadsheetDayColumn(
         key: UniqueKey(), dateTime: dateTime, weekdaySlot: weekdaySlot));
   }
@@ -257,12 +264,12 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         style: TextButton.styleFrom(
           backgroundColor: color,
         ),
-        onPressed: () => _onSelectWeek(weeknr),
+        onPressed: () => onSelectWeek(weeknr),
         child: textWidget);
   }
 
   //----------------------------
-  void _onSelectWeek(int weeknr) {
+  void onSelectWeek(int weeknr) {
     setState(() {
       _activeWeekNr = weeknr;
       _dataGrid = _buildGrid(context);
@@ -279,7 +286,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             wh.horSpace(20),
-            _buildActionButton(context),
+            buildActionButton(context),
           ],
         ),
       ],
@@ -287,20 +294,20 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   // ----------------------------
-  Widget _buildActionButton(BuildContext context) {
+  Widget buildActionButton(BuildContext context) {
     if (AppData.instance.getSpreadsheet().status ==
         SpreadsheetStatus.underConstruction) {
-      return _buildActionButtonsNewSpreadsheet();
+      return buildActionButtonsNewSpreadsheet();
     } else {
       return Container();
     }
   }
 
   // ----------------------------
-  Widget _buildActionButtonsNewSpreadsheet() {
-    if (_isSupervisor()) {
+  Widget buildActionButtonsNewSpreadsheet() {
+    if (isSupervisor()) {
       return OutlinedButton(
-          onPressed: _onConfirmFinalizeSpreadsheet,
+          onPressed: onConfirmFinalizeSpreadsheet,
           child: const Text('Maak schema definitief'));
     } else {
       return Container();
@@ -312,18 +319,18 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   //   _buildDialogSpreadsheetInfo(context);
   // }
 
-  void _onConfirmFinalizeSpreadsheet() {
-    _buildDialogConfirm(context, true);
+  void onConfirmFinalizeSpreadsheet() {
+    buildDialogConfirm(context, true);
   }
 
-  void _makeSpreadsheetFinal(BuildContext context) async {
+  void makeSpreadsheetFinal(BuildContext context) async {
     AppController.instance.finalizeSpreadsheet();
     AppEvents.fireSpreadsheetReady();
     wh.showSnackbar('Training schema is nu definitief!');
   }
 
   //----------------
-  void _buildDialogConfirm(BuildContext context, bool allProgramFieldSet) {
+  void buildDialogConfirm(BuildContext context, bool allProgramFieldSet) {
     String msg =
         "Weet je zeker dat je het schema van ${AppData.instance.getActiveMonthAsString()} definitief wilt maken";
     Widget cancelButton = TextButton(
@@ -336,7 +343,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     Widget continueButton = TextButton(
       onPressed: allProgramFieldSet
           ? () {
-              _makeSpreadsheetFinal(context);
+              makeSpreadsheetFinal(context);
 
               Navigator.of(context, rootNavigator: true)
                   .pop(); // dismisses only the dialog and returns nothing
@@ -374,7 +381,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   //--------------------------------
-  bool _isSupervisor() {
+  bool isSupervisor() {
     return AppData.instance.getUser().isSupervisor();
   }
 }

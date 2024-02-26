@@ -18,7 +18,7 @@ class AppConstants {
   final Color lightblue = const Color(0xffBFD9EE);
   final Color lightOrange = const Color(0xffF3EFE3);
   final Color lightBrown = const Color(0xffEDEAE9);
-  final Color ssRowHeader = const Color(0xff63A7DC);
+  final Color ssRowHeader = Colors.lightBlue[100]!;
   final Color lonuExtraDag = const Color(0xfff7cd9c);
   final Color ssRowTuesday = Colors.green[100]!;
   final Color ssRowWednesday = const Color(0xffE8F5E9);

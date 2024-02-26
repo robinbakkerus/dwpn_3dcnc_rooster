@@ -59,11 +59,15 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
               : null,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-            child: Text(
-              _cellText,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: _buildCellWidget(),
           )),
+    );
+  }
+
+  Widget _buildCellWidget() {
+    return Text(
+      _cellText,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -151,7 +155,7 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
     } else if (action == ReservationAction.cancelRange) {
       DateTime startDate = widget.dateTime;
       while (startDate.month == widget.dateTime.month) {
-        cancelReservations.add(_buildReservation(startDate));
+        addReservations.add(_buildReservation(startDate));
         startDate = startDate.add(const Duration(days: 7));
       }
     }
