@@ -85,9 +85,8 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   String _userPk() => AppData.instance.getUser().pk;
 
   bool _showDialog() {
-    // // String txt = widget.sheetRow.rowCells[_groupIndex].text;
-    // return txt.isNotEmpty && _isEditable();
-    return true;
+    return widget.dateTime
+        .isAfter(DateTime.now().add(const Duration(days: -1)));
   }
 
   Future<void> _dialogBuilder(BuildContext context) async {

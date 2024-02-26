@@ -23,6 +23,7 @@ class SpreadsheetPage extends StatefulWidget {
 class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   Widget _dataGrid = Container();
   int _activeWeekNr = 0;
+  bool _showWeeks = true;
 
   _SpreadsheetPageState();
 
@@ -91,7 +92,11 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   List<DataColumn> _buildDataTableColumns() {
     List<DataColumn> result = [];
 
-    List<DateTime> dates = AppHelper.instance.getAllDatesInWeek(_activeWeekNr);
+    List<DateTime> dates = _showWeeks
+        ? AppHelper.instance.getAllDatesInWeek(_activeWeekNr)
+        : AppHelper.instance
+            .getAllDatesInMonth(AppData.instance.getActiveDate());
+
     DateTime firstDate = dates[0];
     String dag = AppHelper.instance.getSimpleDayString(firstDate);
 
@@ -144,10 +149,16 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   List<DataRow> _buildDataRows() {
     List<DataRow> result = [];
 
-    List<DateTime> dates = AppHelper.instance.getAllDatesInWeek(_activeWeekNr);
-    dates = dates
-        .where((e) => e.month == AppData.instance.getActiveMonth())
-        .toList();
+    List<DateTime> dates = [];
+    if (_showWeeks) {
+      dates = AppHelper.instance.getAllDatesInWeek(_activeWeekNr);
+      dates = dates
+          .where((e) => e.month == AppData.instance.getActiveMonth())
+          .toList();
+    } else {
+      dates = AppHelper.instance
+          .getAllDatesInMonth(AppData.instance.getActiveDate());
+    }
 
     int rowNr = 0;
     for (DateTime dateTime in dates) {
@@ -246,12 +257,19 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
 
   //----------------------------
   Widget _buildSelectWeekButtons() {
-    List<int> weeknrs = AppHelper.instance
-        .getWeekNumbersForMonth(AppData.instance.getActiveDate());
-    List<Widget> weeks = weeknrs.map((e) => _buildSelectWeekWidget(e)).toList();
-    return Row(children: weeks);
+    List<Widget> weekButtons = [];
+    if (_showWeeks) {
+      List<int> weeknrs = AppHelper.instance
+          .getWeekNumbersForMonth(AppData.instance.getActiveDate());
+      weekButtons
+          .addAll(weeknrs.map((e) => _buildSelectWeekWidget(e)).toList());
+    }
+
+    weekButtons.add(_buildToggleMonthButton());
+    return Row(children: weekButtons);
   }
 
+//----------------------------
   TextButton _buildSelectWeekWidget(int weeknr) {
     String result = 'Week $weeknr';
     DateTime date1 =
@@ -268,10 +286,29 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
         child: textWidget);
   }
 
+//----------------------------
+  TextButton _buildToggleMonthButton() {
+    String txt = _showWeeks ? 'Maand' : 'Week';
+    return TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.transparent,
+        ),
+        onPressed: _toggleMonth,
+        child: Text(txt));
+  }
+
   //----------------------------
   void onSelectWeek(int weeknr) {
     setState(() {
       _activeWeekNr = weeknr;
+      _dataGrid = _buildGrid(context);
+    });
+  }
+
+  //----------------------------
+  void _toggleMonth() {
+    setState(() {
+      _showWeeks = !_showWeeks;
       _dataGrid = _buildGrid(context);
     });
   }
