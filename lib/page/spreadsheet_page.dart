@@ -4,6 +4,7 @@ import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_helper.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
+import 'package:dwpn_3dcnc_rooster/widget/device_info_widget.dart';
 import 'package:dwpn_3dcnc_rooster/widget/spreadsheet_cell.dart';
 import 'package:dwpn_3dcnc_rooster/widget/spreadsheet_day_field.dart';
 import 'package:flutter/material.dart';
@@ -95,12 +96,44 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
             Text('Dag deel', style: TextStyle(fontStyle: FontStyle.italic))));
 
     for (Device device in AppData.instance.deviceList) {
-      result.add(DataColumn(
-          label: Text(device.name,
-              style: const TextStyle(fontStyle: FontStyle.italic))));
+      result.add(DataColumn(label: _buildHeaderCell(device.name)));
     }
 
     return result;
+  }
+
+  //----------------------------
+  Widget _buildHeaderCell(String devicePk) {
+    return TextButton(
+        onPressed: () => _onDeviceHeaderClicked(devicePk),
+        child: Text(devicePk));
+  }
+
+  //----------------------------
+  void _onDeviceHeaderClicked(String devicePk) async {
+    String title = 'Device $devicePk';
+    Widget closeButton = TextButton(
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true)
+            .pop(); // dismisses only the dialog and returns nothing
+      },
+      child: const Text("Close"),
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: DeviceInfo(
+        devicePk: devicePk,
+      ),
+      actions: [
+        closeButton,
+      ],
+    ); //
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
   }
 
   //------------------------------
@@ -111,8 +144,6 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     dates = dates
         .where((e) => e.month == AppData.instance.getActiveMonth())
         .toList();
-
-    lp('todo buildDataRows ${dates.length}');
 
     for (DateTime dateTime in dates) {
       List<WeekdaySlot> slots =

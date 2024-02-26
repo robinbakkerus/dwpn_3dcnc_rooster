@@ -91,7 +91,6 @@ class AppController {
     }
 
     AppData.instance.setActiveSpreadSheetIndex(0);
-    log('todo rsv ${AppData.instance.getSpreadsheet().reservations.length}');
     AppEvents.fireSpreadsheetReady();
   }
 
