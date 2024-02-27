@@ -165,9 +165,11 @@ class _StartPageState extends State<StartPage> {
   }
 
   String _getBarTitleForSpreadsheetPage() {
-    String result = '';
-    result =
-        '${AppData.instance.getActiveMonthAsString()}  (${AppData.instance.getSpreadsheet().status.display})';
+    String result = AppData.instance.getActiveMonthAsString();
+    if (!_isLargeScreen()) {
+      result = result.substring(0, 3);
+    }
+    result += '(${AppData.instance.getSpreadsheet().status.display})';
     return result;
   }
 
@@ -427,5 +429,9 @@ class _StartPageState extends State<StartPage> {
         return alert;
       },
     );
+  }
+
+  bool _isLargeScreen() {
+    return (MediaQuery.of(context).size.width > 800);
   }
 }

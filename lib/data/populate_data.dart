@@ -54,8 +54,8 @@ SpreadSheet _spreadSheetMarch() {
 List<Device> allDevices() {
   List<Device> result = [];
 
-  result.add(_buildDevice('BLAB_L', 'Bamboo Lujia ', DeviceType.printer));
-  result.add(_buildDevice('BLAB_R', 'Bamboo Romeo ', DeviceType.printer));
+  result.add(_buildDevice('BB_L', 'Bamboo Lujia ', DeviceType.printer));
+  result.add(_buildDevice('BB_R', 'Bamboo Romeo ', DeviceType.printer));
   result.add(_buildDevice('ADV9', '3d printer ', DeviceType.printer));
   result.add(_buildDevice('LAS_L', 'Laser links ', DeviceType.laser));
   result.add(_buildDevice('LAS_R', 'Laser rechts ', DeviceType.laser));
@@ -108,12 +108,12 @@ List<Reservation> allReservationsMaart() {
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'BLAB_L',
+      devicePk: 'BB_L',
       userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'BLAB_R',
+      devicePk: 'BB_R',
       userPk: userBill.pk));
   result.add(Reservation(
       day: 4,
@@ -123,7 +123,7 @@ List<Reservation> allReservationsMaart() {
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'BLAB_L',
+      devicePk: 'BB_L',
       userPk: userMarc.pk));
 
   return result;

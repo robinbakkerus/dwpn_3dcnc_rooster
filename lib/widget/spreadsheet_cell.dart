@@ -44,8 +44,8 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   @override
   Widget build(BuildContext context) {
     _cellText = _getCellText();
-    Color borderCol =
-        _cellText.contains(_userName()) ? Colors.orangeAccent : Colors.grey;
+    bool b = _reservedByMe();
+    Color borderCol = b ? Colors.orangeAccent : Colors.grey;
     Color backColor = _getCellBackgroundColor();
     double borderWidth = _cellText.contains(_userName()) ? 2 : 0.1;
 
@@ -58,9 +58,12 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
                   color: backColor,
                   border: Border.all(width: borderWidth, color: borderCol))
               : null,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-            child: _buildCellWidget(),
+          child: Tooltip(
+            message: _tooltipText(),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
+              child: _buildCellWidget(),
+            ),
           )),
     );
   }
@@ -86,12 +89,13 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   String _userPk() => AppData.instance.getUser().pk;
 
   bool _showDialog() {
-    return widget.dateTime
-        .isAfter(DateTime.now().add(const Duration(days: -1)));
+    return !widget.dateTime
+        .isBefore(DateTime.now().add(const Duration(days: -1)));
   }
 
   Future<void> _dialogBuilder(BuildContext context) async {
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Dialog(
@@ -171,5 +175,18 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
         daySlotEnum: widget.weekDaySlot.daySlot,
         devicePk: widget.devicePk,
         userPk: _userPk());
+  }
+
+  String _tooltipText() {
+    if (widget.dateTime
+        .isBefore(DateTime.now().add(const Duration(days: -1)))) {
+      return "Deze datum is al verlopen";
+    } else {
+      return _reservedByMe() ? "Klik om te annuleren" : "Klik om te reseveren";
+    }
+  }
+
+  bool _reservedByMe() {
+    return _cellText.contains(_userName());
   }
 }

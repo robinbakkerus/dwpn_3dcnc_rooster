@@ -12,6 +12,9 @@ enum Groep {
 }
 
 class AppConstants {
+  final Color ssActiveRowColor = Colors.yellow[50]!;
+  final Color ssInactiveRowColor = Colors.grey[100]!;
+
   final Color lightYellow = const Color(0xffF4E9CA);
   final Color lightGeen = const Color(0xffE3ECE3);
   final Color lightRed = const Color(0xffF6AB94);
@@ -23,7 +26,6 @@ class AppConstants {
   final Color ssRowTuesday = Colors.green[100]!;
   final Color ssRowWednesday = const Color(0xffE8F5E9);
   final Color ssRowThursday = Colors.lime[100]!;
-  final Color ssRowFriday = Colors.yellow[50]!;
   final Color ssRowSaturday = const Color(0xffEBE8E6);
   final Color ssRowMonday = Colors.blue[100]!;
   final Color dayRow = const Color(0xff00EDFF);

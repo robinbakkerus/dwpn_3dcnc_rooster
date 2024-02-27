@@ -98,7 +98,8 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
             .getAllDatesInMonth(AppData.instance.getActiveDate());
 
     DateTime firstDate = dates[0];
-    String dag = AppHelper.instance.getSimpleDayString(firstDate);
+    String dag = AppHelper.instance
+        .weekDayStringFromDate(date: firstDate, locale: c.localNL, length: 3);
 
     result.add(DataColumn(
       label: Text(dag),
@@ -168,7 +169,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
       if (slots.isNotEmpty) {
         MaterialStateColor headerColor =
             MaterialStateColor.resolveWith((states) => c.ssRowHeader);
-        MaterialStateColor color = getRowColor(dateTime);
+        MaterialStateColor color = _getRowColor(dateTime);
 
         // row with date and repeating header
         if (rowNr > 0) {
@@ -192,8 +193,10 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     return result;
   }
 
-  MaterialStateColor getRowColor(DateTime date) {
-    return MaterialStateColor.resolveWith((states) => c.ssRowFriday);
+  MaterialStateColor _getRowColor(DateTime date) {
+    return !date.isBefore(DateTime.now().add(const Duration(days: -1)))
+        ? MaterialStateColor.resolveWith((states) => c.ssActiveRowColor)
+        : MaterialStateColor.resolveWith((states) => c.ssInactiveRowColor);
     // MaterialStateColor col =
     //     MaterialStateColor.resolveWith((states) => Colors.white);
     // if (date.weekday == DateTime.monday) {

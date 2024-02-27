@@ -63,7 +63,8 @@ class _SpreadsheetDayColumnState extends State<SpreadsheetDayColumn>
 
   String _getText() {
     if (widget.weekdaySlot == null) {
-      return AppHelper.instance.getSimpleDayString(widget.dateTime);
+      return AppHelper.instance.weekDayStringFromDate(
+          date: widget.dateTime, locale: c.localNL, length: 3);
     } else {
       String result = widget.weekdaySlot!.daySlot.name.toLowerCase();
       return result;

@@ -34,7 +34,7 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            wh.verSpace(15),
+            wh.verSpace(5),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
               child: __showOtherReservation(),
@@ -43,10 +43,11 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
               padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
               child: _askReservation(),
             ),
-            wh.verSpace(5),
+            wh.verSpace(1),
             _buildSelectRangeRadios(),
             wh.verSpace(5),
             _buildYesAndCancelButtons(context),
+            wh.verSpace(5),
           ],
         ),
       ),
@@ -96,15 +97,15 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
 
   Widget _askReservation() {
     _addYesButton = true;
-    String prefix = 'Hallo ${widget.userName}:';
+    String prefix = 'Hallo ${widget.userName} :\n';
     String text = '';
     if (_reservedByMe()) {
-      text = '$prefix wil je de ${widget.devicePk} annuleren?';
+      text = '$prefix Wil je de ${widget.devicePk} annuleren?';
     } else if (_cellText.isEmpty || !widget.spreadsheetIsActive) {
-      text = '$prefix wil je de ${widget.devicePk} reserveren?';
+      text = '$prefix Wil je de ${widget.devicePk} reserveren?';
     } else if (_otherReservations().isNotEmpty && widget.spreadsheetIsActive) {
       _addYesButton = false;
-      text = '$prefix dit timeslot is al gereserveerd en schema is definitief!';
+      text = '$prefix Dit timeslot is al gereserveerd en schema is definitief!';
     } else {
       _addYesButton = false;
       return Container();
@@ -156,29 +157,32 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
   String _selectedRange = 'Alleen dit slot';
   //--------------------------------
   Widget _buildSelectRangeRadios() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(
-          child: RadioListTile(
-            title: Text(_rangeOptions[0]),
-            value: _rangeOptions[0],
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: RadioListTile(
+              title: Text(_rangeOptions[0]),
+              value: _rangeOptions[0],
+              groupValue: _selectedRange,
+              onChanged: (value) => setState(() {
+                _selectedRange = value.toString();
+              }),
+            ),
+          ),
+          Expanded(
+              child: RadioListTile(
+            title: Text(_rangeOptions[1]),
+            value: _rangeOptions[1],
             groupValue: _selectedRange,
             onChanged: (value) => setState(() {
               _selectedRange = value.toString();
             }),
-          ),
-        ),
-        Expanded(
-            child: RadioListTile(
-          title: Text(_rangeOptions[1]),
-          value: _rangeOptions[1],
-          groupValue: _selectedRange,
-          onChanged: (value) => setState(() {
-            _selectedRange = value.toString();
-          }),
-        ))
-      ],
+          ))
+        ],
+      ),
     );
   }
 }
