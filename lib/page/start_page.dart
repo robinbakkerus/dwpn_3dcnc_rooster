@@ -169,7 +169,12 @@ class _StartPageState extends State<StartPage> {
     if (!_isLargeScreen()) {
       result = result.substring(0, 3);
     }
-    result += '(${AppData.instance.getSpreadsheet().status.display})';
+    String stat = AppData.instance.getSpreadsheet().status.display;
+    if (!_isLargeScreen()) {
+      stat = stat.substring(0, 1);
+    }
+
+    result += ' ($stat)';
     return result;
   }
 

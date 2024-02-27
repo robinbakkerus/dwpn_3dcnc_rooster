@@ -213,6 +213,13 @@ class AppHelper with AppMixin {
     }
   }
 
+//------------------------
+  Device findDeviceByName(String name) {
+    Device? device =
+        AppData.instance.deviceList.firstWhereOrNull((e) => e.name == name);
+    return device ?? Device.empty();
+  }
+
   ///---------------------------------------------
   String getAuthPassword(User trainer) {
     return 'pwd${trainer.originalAccessCode}!678123';

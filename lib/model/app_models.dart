@@ -69,9 +69,9 @@ enum DeviceType {
 
   factory DeviceType.fromMap(String type) {
     switch (type) {
-      case 'regular':
-        return DeviceType.printer;
-      case 'special':
+      case 'engrave':
+        return DeviceType.engrave;
+      case 'laser':
         return DeviceType.laser;
       default:
         return DeviceType.printer;
@@ -541,6 +541,10 @@ class Device {
     required this.description,
     required this.type,
   });
+
+  factory Device.empty() {
+    return Device(name: '', description: '', type: DeviceType.printer);
+  }
 
   Device copyWith({
     String? name,

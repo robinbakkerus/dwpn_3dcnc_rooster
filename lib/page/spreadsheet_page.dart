@@ -74,15 +74,14 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
 
 //--------------------------------
   Widget _buildDataTable(BuildContext context) {
-    double colSpace = AppHelper.instance.isWindows() ? 1 : 1;
     return DataTable(
-      headingRowHeight: 30,
-      horizontalMargin: 1,
+      headingRowHeight: 26,
+      horizontalMargin: 1.0,
       headingRowColor:
           MaterialStateColor.resolveWith((states) => c.ssRowHeader),
-      columnSpacing: colSpace,
+      columnSpacing: 1.0,
       dataRowMinHeight: 15,
-      dataRowMaxHeight: 30,
+      dataRowMaxHeight: 26,
       columns: _buildDataTableColumns(),
       rows: _buildDataRows(),
     );
@@ -106,7 +105,9 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
     ));
 
     for (Device device in AppData.instance.deviceList) {
-      result.add(DataColumn(label: _buildHeaderCell(device.name)));
+      result.add(DataColumn(
+        label: _buildHeaderCell(device.name),
+      ));
     }
 
     return result;
@@ -114,9 +115,16 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
 
   //----------------------------
   Widget _buildHeaderCell(String devicePk) {
-    return TextButton(
-        onPressed: () => _onDeviceHeaderClicked(devicePk),
-        child: Text(devicePk));
+    Device device = AppHelper.instance.findDeviceByName(devicePk);
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: c.ssRowHeader,
+      ),
+      onPressed: () => _onDeviceHeaderClicked(devicePk),
+      icon: Image.asset('assets/${device.type.name}.png'),
+
+      label: Text(devicePk), // <-- Text
+    );
   }
 
   //----------------------------
@@ -237,7 +245,7 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
   }
 
   Widget repeatHeaderCell(String text) {
-    return SizedBox(width: c.w1, child: Text(text));
+    return Center(child: Text(text));
   }
 
   //----------------------------

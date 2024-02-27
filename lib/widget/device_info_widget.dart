@@ -8,8 +8,7 @@ class DeviceInfo extends StatelessWidget with AppMixin {
   final String devicePk;
   late final Device _device;
   DeviceInfo({super.key, required this.devicePk}) {
-    _device = AppData.instance.deviceList
-        .firstWhere((element) => element.name == devicePk);
+    _device = AppHelper.instance.findDeviceByName(devicePk);
   }
 
   @override
@@ -19,6 +18,7 @@ class DeviceInfo extends StatelessWidget with AppMixin {
       height: c.h1 * 7,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _buildDeviceInfoRow(),
+        wh.verSpace(10),
         _showReservationCounts(),
         _showImage()
       ]),
@@ -29,12 +29,8 @@ class DeviceInfo extends StatelessWidget with AppMixin {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        const IconButton(
-          color: Colors.blue,
-          icon: Icon(Icons.precision_manufacturing_sharp),
-          onPressed: null,
-        ),
-        Text(_device.description),
+        Image.asset('assets/${_device.type.name}.png'),
+        Text('${_device.description}\ntype: ${_device.type.name}'),
       ],
     );
   }

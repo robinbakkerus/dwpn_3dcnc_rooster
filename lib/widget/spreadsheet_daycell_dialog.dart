@@ -21,14 +21,13 @@ class DayCellDialogWidget extends StatefulWidget {
 ///--------------------------------
 class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
     with AppMixin {
-  final String _cellText = '';
   bool _addYesButton = false;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       child: SizedBox(
-        height: AppData.instance.screenHeight * 0.3,
+        height: AppData.instance.screenHeight * 0.4,
         width: 500,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -36,11 +35,11 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
           children: [
             wh.verSpace(5),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(20, 4, 4, 4),
               child: __showOtherReservation(),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(20, 4, 4, 4),
               child: _askReservation(),
             ),
             wh.verSpace(1),
@@ -101,24 +100,27 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
     String text = '';
     if (_reservedByMe()) {
       text = '$prefix Wil je de ${widget.devicePk} annuleren?';
-    } else if (_cellText.isEmpty || !widget.spreadsheetIsActive) {
+    } else if (widget.cellText.isEmpty) {
       text = '$prefix Wil je de ${widget.devicePk} reserveren?';
     } else if (_otherReservations().isNotEmpty && widget.spreadsheetIsActive) {
       _addYesButton = false;
       text = '$prefix Dit timeslot is al gereserveerd en schema is definitief!';
+    } else if (_otherReservations().isNotEmpty && !widget.spreadsheetIsActive) {
+      text = '$prefix Wil je de ${widget.devicePk} reserveren?';
     } else {
-      _addYesButton = false;
       return Container();
     }
 
-    return Text(text, style: const TextStyle(fontSize: 20));
+    return Text(text, style: const TextStyle(fontSize: 16));
   }
 
   Widget __showOtherReservation() {
     if (_otherReservations().isNotEmpty) {
       String txt = '''Deze is al gereserveerd door: ${_otherReservations()}
       ''';
-      return Text(txt);
+
+      Color col = widget.spreadsheetIsActive ? Colors.red[300]! : Colors.black;
+      return Text(txt, style: TextStyle(fontSize: 16, color: col));
     } else {
       return Container();
     }
@@ -157,13 +159,18 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
   String _selectedRange = 'Alleen dit slot';
   //--------------------------------
   Widget _buildSelectRangeRadios() {
+    if (_otherReservations().isNotEmpty && widget.spreadsheetIsActive) {
+      return Container();
+    }
+
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: RadioListTile(
+      child: SizedBox(
+        height: 100,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RadioListTile(
               title: Text(_rangeOptions[0]),
               value: _rangeOptions[0],
               groupValue: _selectedRange,
@@ -171,17 +178,16 @@ class _DayCellDialogWidgetState extends State<DayCellDialogWidget>
                 _selectedRange = value.toString();
               }),
             ),
-          ),
-          Expanded(
-              child: RadioListTile(
-            title: Text(_rangeOptions[1]),
-            value: _rangeOptions[1],
-            groupValue: _selectedRange,
-            onChanged: (value) => setState(() {
-              _selectedRange = value.toString();
-            }),
-          ))
-        ],
+            RadioListTile(
+              title: Text(_rangeOptions[1]),
+              value: _rangeOptions[1],
+              groupValue: _selectedRange,
+              onChanged: (value) => setState(() {
+                _selectedRange = value.toString();
+              }),
+            )
+          ],
+        ),
       ),
     );
   }

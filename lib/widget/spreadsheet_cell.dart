@@ -44,10 +44,17 @@ class _SpreadsheetCellState extends State<SpreadsheetCell> with AppMixin {
   @override
   Widget build(BuildContext context) {
     _cellText = _getCellText();
-    bool b = _reservedByMe();
-    Color borderCol = b ? Colors.orangeAccent : Colors.grey;
+
+    Color borderCol = Colors.grey;
+    double borderWidth = _cellText.isEmpty ? 0.1 : 1;
+    if (_reservedByMe()) {
+      bool active =
+          AppData.instance.getSpreadsheet().status == SpreadsheetStatus.active;
+      borderCol = active ? Colors.green : Colors.orange;
+      borderWidth = 2;
+    }
+
     Color backColor = _getCellBackgroundColor();
-    double borderWidth = _cellText.contains(_userName()) ? 2 : 0.1;
 
     return InkWell(
       onTap: _showDialog() ? () => _dialogBuilder(context) : null,
