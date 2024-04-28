@@ -11,6 +11,8 @@ enum Groep {
   zomer;
 }
 
+enum DevicePK { romeo, lulliet, joe, brownBean, grayBeam, cutThing }
+
 class AppConstants {
   final Color ssActiveRowColor = Colors.yellow[50]!;
   final Color ssInactiveRowColor = Colors.grey[100]!;

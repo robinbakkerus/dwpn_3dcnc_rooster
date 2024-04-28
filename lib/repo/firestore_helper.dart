@@ -328,4 +328,9 @@ class FirestoreHelper with AppMixin implements Dbs {
 
     return firestore.collection(collectionName);
   }
+
+  @override
+  Future<Logbook> getLogbook() async {
+    return p.getLogbook();
+  }
 }

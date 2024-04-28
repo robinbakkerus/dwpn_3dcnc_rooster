@@ -16,21 +16,8 @@ class ActiveUserReadyEvent {}
 class LogoutEvent {}
 
 // event that is send from widget with radiobuttons, to tell parent page that some value is changed
-class TrainerUpdatedEvent {
-  User trainer;
-  TrainerUpdatedEvent({
-    required this.trainer,
-  });
-}
 
 class SpreadsheetReadyEvent {}
-
-class ExtraDayUpdatedEvent {
-  final int dag;
-  final String text;
-
-  ExtraDayUpdatedEvent(this.dag, this.text);
-}
 
 class ReservationEvent {
   final int day;
@@ -47,22 +34,14 @@ class ReservationEvent {
   });
 }
 
-class TrainerPrefUpdatedEvent {
-  final String paramName;
-  final int newValue;
-
-  TrainerPrefUpdatedEvent(
-    this.paramName,
-    this.newValue,
-  );
-}
-
 class ErrorEvent {
   final String errMsg;
   ErrorEvent(
     this.errMsg,
   );
 }
+
+class LogbookReadyEvent {}
 
 /*
 	Static class that contains all onXxx and fireXxx methods.
@@ -82,14 +61,9 @@ class AppEvents {
   static void fireActiveUserReady() => _sEventBus.fire(ActiveUserReadyEvent());
 
   static void fireLogOutEvent() => _sEventBus.fire(LogoutEvent());
-  static void fireTrainerUpdated(User trainer) =>
-      _sEventBus.fire(TrainerUpdatedEvent(trainer: trainer));
 
   static void fireSpreadsheetReady() =>
       _sEventBus.fire(SpreadsheetReadyEvent());
-
-  static void fireExtraDayUpdatedEvent(int dag, String text) =>
-      _sEventBus.fire(ExtraDayUpdatedEvent(dag, text));
 
   static void fireReservationEvent(
           {required int day,
@@ -104,11 +78,10 @@ class AppEvents {
           user: user,
           addReservation: addReservation));
 
-  static void fireTrainerPrefUpdated(String paramName, int newValue) =>
-      _sEventBus.fire(TrainerPrefUpdatedEvent(paramName, newValue));
-
   static void fireErrorEvent(String errMsg) =>
       _sEventBus.fire(ErrorEvent(errMsg));
+
+  static void fireLogbookReadyEvent() => _sEventBus.fire(LogbookReadyEvent());
 
   ///----- static onXxx methods --------
   static void onShowPage(OnShowPageFunc func) =>
@@ -120,23 +93,17 @@ class AppEvents {
   static void onLogoutEvent(OnLogoutEventFunc func) =>
       _sEventBus.on<LogoutEvent>().listen((event) => func(event));
 
-  static void onTrainerUpdatedEvent(OnTrainerUpdatedEventFunc func) =>
-      _sEventBus.on<TrainerUpdatedEvent>().listen((event) => func(event));
-
   static void onSpreadsheetReadyEvent(OnSpreadsheetReadyEventFunc func) =>
       _sEventBus.on<SpreadsheetReadyEvent>().listen((event) => func(event));
-
-  static void onExtraDayUpdatedEvent(OnExtraDayUpdatedEventFunc func) =>
-      _sEventBus.on<ExtraDayUpdatedEvent>().listen((event) => func(event));
 
   static void onReservationEvent(OnReservationEventFunc func) =>
       _sEventBus.on<ReservationEvent>().listen((event) => func(event));
 
-  static void onTrainerPrefUpdatedEvent(OnTrainerPrefUpdatedEventFunc func) =>
-      _sEventBus.on<TrainerPrefUpdatedEvent>().listen((event) => func(event));
-
   static void onErrorEvent(OnErrorEventFunc func) =>
       _sEventBus.on<ErrorEvent>().listen((event) => func(event));
+
+  static void onLogbookReadyEvent(OnLogbookReadyEventFunc func) =>
+      _sEventBus.on<LogbookReadyEvent>().listen((event) => func(event));
 }
 
 /// ----- typedef's -----------
@@ -146,15 +113,11 @@ typedef OnTrainerReadyEventFunc = void Function(ActiveUserReadyEvent event);
 
 typedef OnLogoutEventFunc = void Function(LogoutEvent event);
 
-typedef OnTrainerUpdatedEventFunc = void Function(TrainerUpdatedEvent event);
-
 typedef OnSpreadsheetReadyEventFunc = void Function(
     SpreadsheetReadyEvent event);
 
-typedef OnExtraDayUpdatedEventFunc = void Function(ExtraDayUpdatedEvent event);
 typedef OnReservationEventFunc = void Function(ReservationEvent event);
 
-typedef OnTrainerPrefUpdatedEventFunc = void Function(
-    TrainerPrefUpdatedEvent event);
-
 typedef OnErrorEventFunc = void Function(ErrorEvent event);
+
+typedef OnLogbookReadyEventFunc = void Function(LogbookReadyEvent event);

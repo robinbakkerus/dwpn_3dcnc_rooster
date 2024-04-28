@@ -665,7 +665,6 @@ class LogbookItem {
   final String devicePk;
   final DateTime date;
   final String userPk;
-  final String color;
   final int weight;
   final String description;
   final String image;
@@ -675,7 +674,6 @@ class LogbookItem {
     required this.devicePk,
     required this.date,
     required this.userPk,
-    required this.color,
     required this.weight,
     required this.description,
     required this.image,
@@ -686,7 +684,6 @@ class LogbookItem {
     String? devicePk,
     DateTime? date,
     String? userPk,
-    String? color,
     int? weight,
     String? description,
     String? image,
@@ -696,7 +693,6 @@ class LogbookItem {
       devicePk: devicePk ?? this.devicePk,
       date: date ?? this.date,
       userPk: userPk ?? this.userPk,
-      color: color ?? this.color,
       weight: weight ?? this.weight,
       description: description ?? this.description,
       image: image ?? this.image,
@@ -709,7 +705,6 @@ class LogbookItem {
       'devicePk': devicePk,
       'date': date.millisecondsSinceEpoch,
       'userPk': userPk,
-      'color': color,
       'weight': weight,
       'description': description,
       'image': image,
@@ -722,7 +717,6 @@ class LogbookItem {
       devicePk: map['devicePk'] as String,
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
       userPk: map['userPk'] as String,
-      color: map['color'] as String,
       weight: map['weight'] as int,
       description: map['description'] as String,
       image: map['image'] as String,
@@ -736,7 +730,7 @@ class LogbookItem {
 
   @override
   String toString() {
-    return 'LogbookItem(id: $id, devicePk: $devicePk, date: $date, userPk: $userPk, color: $color, weight: $weight, description: $description, image: $image)';
+    return 'LogbookItem(id: $id, devicePk: $devicePk, date: $date, userPk: $userPk, weight: $weight, description: $description, image: $image)';
   }
 
   @override
@@ -746,23 +740,12 @@ class LogbookItem {
     return other.id == id &&
         other.devicePk == devicePk &&
         other.date == date &&
-        other.userPk == userPk &&
-        other.color == color &&
-        other.weight == weight &&
-        other.description == description &&
-        other.image == image;
+        other.userPk == userPk;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        devicePk.hashCode ^
-        date.hashCode ^
-        userPk.hashCode ^
-        color.hashCode ^
-        weight.hashCode ^
-        description.hashCode ^
-        image.hashCode;
+    return id.hashCode ^ devicePk.hashCode ^ date.hashCode ^ userPk.hashCode;
   }
 }
 

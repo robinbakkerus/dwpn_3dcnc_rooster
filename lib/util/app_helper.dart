@@ -131,6 +131,11 @@ class AppHelper with AppMixin {
     return DateFormat.EEEE(locale).format(dateTime);
   }
 
+  //------------------------------------------
+  String formatDate(DateTime date) {
+    return date.toIso8601String().substring(0, 10);
+  }
+
   /// ------------------------
   /// weekdayFromString('dinsdag', 'nl') -> 2
   int weekdayFromString({required String weekday, required String locale}) {

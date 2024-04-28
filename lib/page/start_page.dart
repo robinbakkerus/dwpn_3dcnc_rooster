@@ -370,6 +370,7 @@ class _StartPageState extends State<StartPage> {
     setState(() {
       _setStackIndex(PageEnum.logbookPage.code);
       _barTitle = _buildBarTitle();
+      AppController.instance.getLogbook();
       _toggleActionEnabled(PageEnum.logbookPage.code);
     });
   }

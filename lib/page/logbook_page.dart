@@ -1,6 +1,8 @@
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
+import 'package:dwpn_3dcnc_rooster/page/logbook_item_page.dart';
+import 'package:dwpn_3dcnc_rooster/util/app_helper.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:flutter/material.dart';
 
@@ -14,11 +16,10 @@ class LogbookPage extends StatefulWidget {
 class _LogbookPageState extends State<LogbookPage> with AppMixin {
   Widget _body = Container();
   Widget _dataTable = Container();
-  Device? _activeDevice;
 
   @override
   void initState() {
-    AppEvents.onSpreadsheetReadyEvent(_onSpreadsheetReady);
+    AppEvents.onLogbookReadyEvent(_onLogbookReady);
     _body = _buildBody(context);
     _dataTable = _buildDataTable(context);
     super.initState();
@@ -26,17 +27,29 @@ class _LogbookPageState extends State<LogbookPage> with AppMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    var scaffold = Scaffold(
+        floatingActionButton: _buildFab(),
         body: SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child:
-          SingleChildScrollView(scrollDirection: Axis.horizontal, child: _body),
-    ));
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal, child: _body),
+        ));
+    return scaffold;
   }
 
-  void _onSpreadsheetReady(SpreadsheetReadyEvent event) {
+  FloatingActionButton _buildFab() {
+    return FloatingActionButton(
+      backgroundColor: const Color.fromRGBO(82, 170, 94, 1.0),
+      tooltip: 'Voeg logboek item toe',
+      onPressed: () => _onAddItemClicked(),
+      child: const Icon(Icons.add, color: Colors.white, size: 28),
+    );
+  }
+
+  void _onLogbookReady(LogbookReadyEvent event) {
     if (mounted) {
       setState(() {
+        _dataTable = _buildDataTable(context);
         _body = _buildBody(context);
       });
     }
@@ -49,41 +62,13 @@ class _LogbookPageState extends State<LogbookPage> with AppMixin {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // _buildSelectDeviceButtons(),
           _dataTable,
-          // _buildBottomButtons(),
         ],
       ),
     );
   }
 
-  ///---------------------------------
-  Widget _buildSelectDeviceButtons() {
-    List<Widget> deviceButtons = [];
-
-    deviceButtons.add(const Text('Start'));
-
-    for (Device device in AppData.instance.deviceList) {
-      deviceButtons.add(TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.transparent,
-          ),
-          onPressed: () => _onSelectDevice(device),
-          child: Text(device.name)));
-    }
-    return Row(children: deviceButtons);
-  }
-
-  //------------------------
-  void _onSelectDevice(Device device) {
-    setState(() {
-      _activeDevice = device;
-      _dataTable = _buildDataTable(context);
-      _body = _buildBody(context);
-    });
-  }
-
-//--------------------------------
+  //--------------------------------
   Widget _buildDataTable(BuildContext context) {
     return DataTable(
       headingRowHeight: 26,
@@ -100,73 +85,81 @@ class _LogbookPageState extends State<LogbookPage> with AppMixin {
 
   //-------------------------
   List<DataColumn> _buildDataTableColumns() {
-    if (_activeDevice == null) {
-      List<DataColumn> result = [];
-      result.add(const DataColumn(
-        label: Text('Logboek pagina'),
-      ));
-      return result;
-    } else {
-      return _buildDataTableColumnsForLogbookItems();
-    }
+    List<DataColumn> result = [];
+    result.add(_buildDataColumn('Device', 50));
+    result.add(_buildDataColumn('Wie', 50));
+    result.add(_buildDataColumn('Wanneer', 70));
+    result.add(_buildDataColumn('Gewicht', 70));
+    result.add(_buildDataColumn('Wat', 100));
+    result.add(_buildDataColumn('Foto', 100));
+    return result;
   }
 
-  List<DataColumn> _buildDataTableColumnsForLogbookItems() {
-    List<DataColumn> result = [];
-    result.add(const DataColumn(
-      label: Text('Wie'),
-    ));
-    result.add(const DataColumn(
-      label: Text('Wanneer'),
-    ));
-    result.add(const DataColumn(
-      label: Text('Hoeveel (gram filament)'),
-    ));
-    result.add(const DataColumn(
-      label: Text('Kleur'),
-    ));
-    result.add(const DataColumn(
-      label: Text('Wat omschrijving'),
-    ));
-    result.add(const DataColumn(
-      label: Text('Foto (opt)'),
-    ));
-
-    return result;
+  DataColumn _buildDataColumn(String title, double size) {
+    return DataColumn(
+      label: SizedBox(
+          width: size,
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(title),
+          )),
+    );
   }
 
 //--------------------------------
   List<DataRow> _buildDataRows() {
     List<DataRow> result = [];
 
-    if (_activeDevice == null) {
-      List<DataCell> cellList = [_buildStartText()];
+    for (LogbookItem item in AppData.instance.logbook.items) {
       result.add(DataRow(
-        cells: cellList,
-      ));
-    } else {
-      result.add(DataRow(
-        cells: _buildDataCellsForLogbookItems(),
+        cells: _buildDataCellsForLogbookItems(item),
       ));
     }
+
     return result;
   }
 
   //--------------------------------
-  List<DataCell> _buildDataCellsForLogbookItems() {
+  List<DataCell> _buildDataCellsForLogbookItems(LogbookItem item) {
     List<DataCell> result = [];
-    result.add(const DataCell(Text('todo')));
-    result.add(const DataCell(Text('todo')));
-    result.add(const DataCell(Text('todo')));
-    result.add(const DataCell(Text('todo')));
-    result.add(const DataCell(Text('todo')));
-    result.add(const DataCell(Text('todo')));
+
+    result.add(DataCell(_buildDataCellWidget(item.devicePk)));
+    User user = AppHelper.instance.findUserByPk(item.userPk);
+    result.add(DataCell(_buildDataCellWidget(user.fullname)));
+    result.add(DataCell(
+        _buildDataCellWidget(AppHelper.instance.formatDate(item.date))));
+    result.add(DataCell(_buildDataCellWidget(item.weight.toString())));
+    result.add(DataCell(_buildDataCellWidget(item.description)));
+    result.add(const DataCell(Text('')));
 
     return result;
   }
 
+//----------------------------
+  Widget _buildDataCellWidget(String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+      child: Text(text),
+    );
+  }
+
   //-----------------------------------
-  DataCell _buildStartText() {
-    return const DataCell(Text('Todo start tekst voor logboek'));
+  void _onAddItemClicked() async {
+    await _dialogBuilder(context);
+  }
+
+  //----------------------------------
+  Future<void> _dialogBuilder(BuildContext context) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: LogbookItemPage(
+            key: UniqueKey(),
+          ),
+        );
+      },
+    ).then((value) => {});
   }
 }

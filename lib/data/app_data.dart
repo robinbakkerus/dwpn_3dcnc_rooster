@@ -108,6 +108,8 @@ class AppData {
     return maanden[getActiveMonth() - 1];
   }
 
+  Logbook logbook = Logbook(items: []);
+
   ///-----------------------------------
   bool isSchemaDirty() {
     return false;

@@ -59,4 +59,9 @@ class Simulator with AppMixin implements Dbs {
 
   @override
   Future<void> saveWeekdaySlots(List<WeekdaySlot> weekdaySlots) async {}
+
+  @override
+  Future<Logbook> getLogbook() async {
+    return getLogbook();
+  }
 }

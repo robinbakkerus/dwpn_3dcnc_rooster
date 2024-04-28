@@ -63,14 +63,6 @@ class AppController {
     }
   }
 
-  ///----- updateTrainer
-  Future<bool> updateTrainer(User trainer) async {
-    User updatedTrainer = await Dbs.instance.createOrUpdateUser(trainer);
-    // AppData.instance.setTrainer(updatedTrainer);
-    AppEvents.fireTrainerUpdated(updatedTrainer);
-    return true;
-  }
-
   ///------------------------------------------------
   Future<void> getActiveSpreadsheets() async {
     // LoadingIndicatorDialog().show();
@@ -158,6 +150,12 @@ class AppController {
     }
   }
 
+  void getLogbook() async {
+    Logbook logbook = await Dbs.instance.getLogbook();
+    AppData.instance.logbook = logbook;
+    AppEvents.fireLogbookReadyEvent();
+  }
+
   ///--------------------------
   Future<void> saveReservation(Reservation reservation, bool add) async {
     try {
@@ -172,7 +170,6 @@ class AppController {
     }
   }
 
-  /// ============ private methods -----------------
   void handleError(Object ex, StackTrace stackTrace) {
     if (AppData.instance.runMode == RunMode.prod) {
       FirestoreHelper.instance.handleError(ex, stackTrace);
@@ -186,7 +183,7 @@ class AppController {
     AppData.instance.setActiveSpreadSheetIndex(index);
   }
 
-  //-------------------------------------------
+  /// ============ private methods -----------------
   void _setScreenSizes(BuildContext context) {
     double width = (MediaQuery.of(context).size.width);
     AppData.instance.screenWidth = width;

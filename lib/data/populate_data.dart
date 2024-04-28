@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
+import 'package:dwpn_3dcnc_rooster/util/app_constants.dart';
 
 List<User> allUsers = [
   userJeff,
@@ -56,12 +57,18 @@ SpreadSheet _spreadSheetMarch() {
 List<Device> allDevices() {
   List<Device> result = [];
 
-  result.add(_buildDevice('BB_L', 'Bamboo Lujia ', DeviceType.printer));
-  result.add(_buildDevice('BB_R', 'Bamboo Romeo ', DeviceType.printer));
-  result.add(_buildDevice('ADV9', '3d printer ', DeviceType.printer));
-  result.add(_buildDevice('LAS_L', 'Laser links ', DeviceType.laser));
-  result.add(_buildDevice('LAS_R', 'Laser rechts ', DeviceType.laser));
-  result.add(_buildDevice('GRF1', 'Graveer machine ', DeviceType.engrave));
+  result.add(_buildDevice(
+      DevicePK.lulliet.name, 'BambooLab lulliet ', DeviceType.printer));
+  result.add(_buildDevice(
+      DevicePK.romeo.name, 'BambooLab Romeo ', DeviceType.printer));
+  result
+      .add(_buildDevice(DevicePK.joe.name, '3d printer ', DeviceType.printer));
+  result.add(
+      _buildDevice(DevicePK.brownBean.name, 'Laser links ', DeviceType.laser));
+  result.add(
+      _buildDevice(DevicePK.grayBeam.name, 'Laser rechts ', DeviceType.laser));
+  result.add(_buildDevice(
+      DevicePK.cutThing.name, 'Graveer machine ', DeviceType.engrave));
 
   return result;
 }
@@ -110,23 +117,41 @@ List<Reservation> allReservationsMaart() {
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'BB_L',
+      devicePk: DevicePK.lulliet.name,
       userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'BB_R',
+      devicePk: DevicePK.romeo.name,
       userPk: userBill.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.afternoon,
-      devicePk: 'ADV9',
+      devicePk: DevicePK.joe.name,
       userPk: userJeff.pk));
   result.add(Reservation(
       day: 4,
       daySlotEnum: DaySlotEnum.morning,
-      devicePk: 'BB_L',
+      devicePk: DevicePK.lulliet.name,
       userPk: userMarc.pk));
 
   return result;
+}
+
+Logbook getLogbook() {
+  Logbook logbook = Logbook(items: []);
+  logbook.items.add(_buildLogbookItem());
+  return logbook;
+}
+
+LogbookItem _buildLogbookItem() {
+  LogbookItem item = LogbookItem(
+      id: 1000,
+      devicePk: DevicePK.romeo.name,
+      date: DateTime.now(),
+      userPk: 'BG',
+      weight: 70,
+      description: 'Demo model',
+      image: '');
+  return item;
 }
