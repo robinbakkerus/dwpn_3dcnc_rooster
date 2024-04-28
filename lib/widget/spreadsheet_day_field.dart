@@ -37,7 +37,7 @@ class _SpreadsheetDayColumnState extends State<SpreadsheetDayColumn>
     return InkWell(
       onTap: _isEditable() ? () {} : null,
       child: Container(
-          width: c.w1,
+          width: c.w15,
           decoration: decoration,
           child: Padding(
             padding: insets,

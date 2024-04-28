@@ -55,7 +55,13 @@ class _AdminPageState extends State<AdminPage> with AppMixin {
   }
 
   List<User> _allUsers() {
-    List<User> users = [p.userBill, p.userElon, p.userMarc, p.userJeff];
+    List<User> users = [
+      p.userBill,
+      p.userElon,
+      p.userMarc,
+      p.userJeff,
+      p.userRobin
+    ];
     return users;
   }
 

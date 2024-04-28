@@ -8,9 +8,11 @@ List<User> allUsers = [
   userMarc,
   userElon,
 ];
-User userBill = _buildUser(
-    'BG', 'Bill Gates', 'BILL', 'robin.bakkerus@gmail.com',
+User userRobin = _buildUser(
+    'RB', 'Robin Bakkerus', 'REAL', 'robin.bakkerus@gmail.com',
     roles: 'T,A,S');
+User userBill =
+    _buildUser('BG', 'Bill Gates', 'BILL', 'robin.bakkerus@gmail.com');
 User userJeff =
     _buildUser('JB', 'Jeff Bezos', 'JEFF', 'robin.bakkerus@gmail.com');
 User userElon =

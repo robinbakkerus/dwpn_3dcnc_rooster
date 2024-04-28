@@ -60,6 +60,9 @@ class _AskAccessCodePageState extends State<AskAccessCodePage> with AppMixin {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Text(
+                    '''Je kunt in dit prototype een van de volgende toegangscodes invoeren:\n
+                BILL  JEFF  MARK  ELON\n\n'''),
                 const Text('Vul je toegangscode in'),
                 Container(
                   height: 20,

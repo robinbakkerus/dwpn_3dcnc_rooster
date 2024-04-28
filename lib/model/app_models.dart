@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -20,9 +21,10 @@ enum PageEnum {
   splashPage(0),
   askAccessCode(1),
   spreadsheetPage(2),
-  helpPage(3),
-  adminPage(4),
-  errorPage(5);
+  logbookPage(3),
+  helpPage(4),
+  adminPage(5),
+  errorPage(6);
 
   const PageEnum(this.code);
   final int code;
@@ -599,17 +601,6 @@ class Device {
 }
 
 ///--------------------------------
-class ActiveTrainingGroup {
-  final List<String> groupNames;
-  final DateTime startDate;
-  DateTime? endDate;
-  ActiveTrainingGroup({
-    required this.groupNames,
-    required this.startDate,
-  });
-}
-
-///--------------------------------
 class WeekdaySlot {
   final int weekday;
   final DaySlotEnum daySlot;
@@ -666,4 +657,161 @@ class WeekdaySlot {
 
   @override
   int get hashCode => weekday.hashCode ^ daySlot.hashCode;
+}
+
+//-------------------------------------------
+class LogbookItem {
+  final int id;
+  final String devicePk;
+  final DateTime date;
+  final String userPk;
+  final String color;
+  final int weight;
+  final String description;
+  final String image;
+
+  LogbookItem({
+    required this.id,
+    required this.devicePk,
+    required this.date,
+    required this.userPk,
+    required this.color,
+    required this.weight,
+    required this.description,
+    required this.image,
+  });
+
+  LogbookItem copyWith({
+    int? id,
+    String? devicePk,
+    DateTime? date,
+    String? userPk,
+    String? color,
+    int? weight,
+    String? description,
+    String? image,
+  }) {
+    return LogbookItem(
+      id: id ?? this.id,
+      devicePk: devicePk ?? this.devicePk,
+      date: date ?? this.date,
+      userPk: userPk ?? this.userPk,
+      color: color ?? this.color,
+      weight: weight ?? this.weight,
+      description: description ?? this.description,
+      image: image ?? this.image,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'devicePk': devicePk,
+      'date': date.millisecondsSinceEpoch,
+      'userPk': userPk,
+      'color': color,
+      'weight': weight,
+      'description': description,
+      'image': image,
+    };
+  }
+
+  factory LogbookItem.fromMap(Map<String, dynamic> map) {
+    return LogbookItem(
+      id: map['id'] as int,
+      devicePk: map['devicePk'] as String,
+      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      userPk: map['userPk'] as String,
+      color: map['color'] as String,
+      weight: map['weight'] as int,
+      description: map['description'] as String,
+      image: map['image'] as String,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory LogbookItem.fromJson(String source) =>
+      LogbookItem.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'LogbookItem(id: $id, devicePk: $devicePk, date: $date, userPk: $userPk, color: $color, weight: $weight, description: $description, image: $image)';
+  }
+
+  @override
+  bool operator ==(covariant LogbookItem other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id &&
+        other.devicePk == devicePk &&
+        other.date == date &&
+        other.userPk == userPk &&
+        other.color == color &&
+        other.weight == weight &&
+        other.description == description &&
+        other.image == image;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        devicePk.hashCode ^
+        date.hashCode ^
+        userPk.hashCode ^
+        color.hashCode ^
+        weight.hashCode ^
+        description.hashCode ^
+        image.hashCode;
+  }
+}
+
+//-------------------------
+class Logbook {
+  List<LogbookItem> items;
+  Logbook({
+    required this.items,
+  });
+
+  Logbook copyWith({
+    List<LogbookItem>? items,
+  }) {
+    return Logbook(
+      items: items ?? this.items,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'items': items.map((x) => x.toMap()).toList(),
+    };
+  }
+
+  factory Logbook.fromMap(Map<String, dynamic> map) {
+    return Logbook(
+      items: List<LogbookItem>.from(
+        (map['items'] as List<int>).map<LogbookItem>(
+          (x) => LogbookItem.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory Logbook.fromJson(String source) =>
+      Logbook.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() => 'Logbook(items: $items)';
+
+  @override
+  bool operator ==(covariant Logbook other) {
+    if (identical(this, other)) return true;
+
+    return listEquals(other.items, items);
+  }
+
+  @override
+  int get hashCode => items.hashCode;
 }

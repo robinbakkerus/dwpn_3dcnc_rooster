@@ -115,16 +115,26 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
 
   //----------------------------
   Widget _buildHeaderCell(String devicePk) {
-    Device device = AppHelper.instance.findDeviceByName(devicePk);
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: c.ssRowHeader,
-      ),
-      onPressed: () => _onDeviceHeaderClicked(devicePk),
-      icon: Image.asset('assets/${device.type.name}.png'),
+    if (_isLargeScreen()) {
+      Device device = AppHelper.instance.findDeviceByName(devicePk);
+      return ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: c.ssRowHeader,
+        ),
+        onPressed: () => _onDeviceHeaderClicked(devicePk),
+        icon: Image.asset('assets/${device.type.name}.png'),
 
-      label: Text(devicePk), // <-- Text
-    );
+        label: Text(devicePk), // <-- Text
+      );
+    } else {
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: c.ssRowHeader,
+        ),
+        onPressed: () => _onDeviceHeaderClicked(devicePk),
+        child: Text(devicePk), // <-- Text
+      );
+    }
   }
 
   //----------------------------
@@ -482,5 +492,9 @@ class _SpreadsheetPageState extends State<SpreadsheetPage> with AppMixin {
       }
     }
     return result;
+  }
+
+  bool _isLargeScreen() {
+    return (MediaQuery.of(context).size.width > 800);
   }
 }

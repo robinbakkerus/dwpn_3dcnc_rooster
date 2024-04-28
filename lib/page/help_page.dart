@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_version.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_mixin.dart';
 import 'package:url_launcher/link.dart';
+import 'package:universal_html/html.dart' as html;
 
 class HelpPage extends StatelessWidget with AppMixin {
   HelpPage({super.key});
@@ -20,7 +21,7 @@ class HelpPage extends StatelessWidget with AppMixin {
                   'Een korte video over het gebruik van deze app vind je'),
               Link(
                   uri: Uri.parse(
-                      'https://drive.google.com/file/d/1P1VRW5GXnh7jFimqcddL_0VJlvLq3Qrs/view'),
+                      'http://www.dorpswerkplaatsnuenen.nl/site/wp-content/uploads/2024/02/Handleiding-3D-CNC-rooster.mp4'),
                   target: LinkTarget.blank,
                   builder: (context, followLink) {
                     return TextButton(
@@ -37,6 +38,9 @@ class HelpPage extends StatelessWidget with AppMixin {
           _buildFaq(),
           wh.verSpace(10),
           Text('Versie: $appVersion'),
+          wh.verSpace(10),
+          OutlinedButton(
+              onPressed: _removeCookie, child: const Text('Remove cookie')),
         ],
       ),
     );
@@ -50,4 +54,9 @@ class HelpPage extends StatelessWidget with AppMixin {
 Faq TODO
 
 ''';
+
+  ///----------------------------
+  void _removeCookie() {
+    html.document.cookie = "ac=";
+  }
 }

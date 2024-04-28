@@ -8,6 +8,7 @@ import 'package:dwpn_3dcnc_rooster/page/admin_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/ask_accesscode_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/error_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/help_page.dart';
+import 'package:dwpn_3dcnc_rooster/page/logbook_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/splash_page.dart';
 import 'package:dwpn_3dcnc_rooster/page/spreadsheet_page.dart';
 import 'package:dwpn_3dcnc_rooster/util/app_constants.dart';
@@ -32,7 +33,7 @@ class _StartPageState extends State<StartPage> {
   String _accessCode = '';
 
   // This corresponds with action button next right arrow action (these are handled seperately)
-  List<bool> _actionEnabled = [false, true, true, true];
+  List<bool> _actionEnabled = [false, true, true, true, true];
   bool _nextMonthEnabled = true;
   bool _prevMonthEnabled = true;
 
@@ -75,6 +76,7 @@ class _StartPageState extends State<StartPage> {
           SplashPage(), //0
           const AskAccessCodePage(), //1
           const SpreadsheetPage(), //2
+          const LogbookPage(), //3
           HelpPage(), //4
           const AdminPage(), //5
           const AppErrorPage(), //6
@@ -136,6 +138,10 @@ class _StartPageState extends State<StartPage> {
   }
 
   Widget _buildUserNameWidget() {
+    String name = _isLargeScreen()
+        ? AppData.instance.getUser().fullname
+        : AppData.instance.getUser().pk;
+
     return ElevatedButton.icon(
       onPressed: _showUserInfoDialog,
       style: ElevatedButton.styleFrom(
@@ -147,7 +153,7 @@ class _StartPageState extends State<StartPage> {
         Icons.person,
         size: 24.0,
       ),
-      label: Text(AppData.instance.getUser().pk),
+      label: Text(name),
     );
   }
 
@@ -160,7 +166,10 @@ class _StartPageState extends State<StartPage> {
       result = 'Help pagina';
     } else if (_getStackIndex() == PageEnum.adminPage.code) {
       result = 'Admin pagina';
+    } else if (_getStackIndex() == PageEnum.logbookPage.code) {
+      result = 'Logboek';
     }
+
     return result;
   }
 
@@ -272,6 +281,8 @@ class _StartPageState extends State<StartPage> {
       onSelected: (value) {
         if (value == PageEnum.spreadsheetPage.code.toString()) {
           _gotoSpreadsheetPage();
+        } else if (value == PageEnum.logbookPage.code.toString()) {
+          _gotoLogbookPage();
         } else if (value == PageEnum.helpPage.code.toString()) {
           _gotoHelpPage();
         } else if (value == PageEnum.adminPage.code.toString()) {
@@ -283,6 +294,10 @@ class _StartPageState extends State<StartPage> {
           PopupMenuItem(
             value: PageEnum.spreadsheetPage.code.toString(),
             child: const Text("Schema"),
+          ),
+          PopupMenuItem(
+            value: PageEnum.logbookPage.code.toString(),
+            child: const Text("Logboek"),
           ),
           PopupMenuItem(
             value: PageEnum.helpPage.code.toString(),
@@ -348,6 +363,14 @@ class _StartPageState extends State<StartPage> {
       _setStackIndex(PageEnum.spreadsheetPage.code);
       _barTitle = _buildBarTitle();
       _toggleActionEnabled(PageEnum.spreadsheetPage.code);
+    });
+  }
+
+  void _gotoLogbookPage() {
+    setState(() {
+      _setStackIndex(PageEnum.logbookPage.code);
+      _barTitle = _buildBarTitle();
+      _toggleActionEnabled(PageEnum.logbookPage.code);
     });
   }
 
