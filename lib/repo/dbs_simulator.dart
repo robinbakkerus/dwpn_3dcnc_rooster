@@ -64,4 +64,9 @@ class Simulator with AppMixin implements Dbs {
   Future<Logbook> getLogbook() async {
     return getLogbook();
   }
+
+  @override
+  Future<void> addLogbookItem(LogbookItem logbookItem) async {
+    return;
+  }
 }

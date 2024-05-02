@@ -183,6 +183,16 @@ class AppController {
     AppData.instance.setActiveSpreadSheetIndex(index);
   }
 
+  void addLogbookItem(LogbookItem logbookItem) async {
+    try {
+      Dbs.instance.addLogbookItem(logbookItem);
+      AppData.instance.logbook.items.add(logbookItem);
+      AppEvents.fireLogbookReadyEvent();
+    } catch (ex, stackTrace) {
+      handleError(ex, stackTrace);
+    }
+  }
+
   /// ============ private methods -----------------
   void _setScreenSizes(BuildContext context) {
     double width = (MediaQuery.of(context).size.width);

@@ -24,4 +24,5 @@ abstract class Dbs {
   Future<void> saveWeekdaySlots(List<WeekdaySlot> weekdaySlots);
   Future<void> saveReservation(Reservation reservation, bool add);
   Future<Logbook> getLogbook();
+  Future<void> addLogbookItem(LogbookItem logbookItem);
 }

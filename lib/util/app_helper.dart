@@ -206,6 +206,18 @@ class AppHelper with AppMixin {
   }
 
   ///---------------------------------------------
+  User findUserByFulltName(String fullname) {
+    User? user = AppData.instance.getAllUsers().firstWhereOrNull(
+        (e) => e.fullname.toLowerCase() == fullname.toLowerCase());
+
+    if (user != null) {
+      return user;
+    } else {
+      return User.empty();
+    }
+  }
+
+  ///---------------------------------------------
   User findUserByPk(String pk) {
     User? trainer = AppData.instance
         .getAllUsers()

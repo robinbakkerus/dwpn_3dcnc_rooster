@@ -14,7 +14,8 @@ enum FsCol {
   spreadsheets,
   mail,
   metadata,
-  error;
+  error,
+  logbook;
 }
 
 final User administrator = p.userBill;
@@ -231,6 +232,27 @@ class FirestoreHelper with AppMixin implements Dbs {
     });
   }
 
+  @override
+  Future<Logbook> getLogbook() async {
+    Logbook result = Logbook(items: []);
+    CollectionReference colRef = collectionRef(FsCol.logbook);
+
+    late QuerySnapshot querySnapshot;
+
+    try {
+      querySnapshot = await colRef.get();
+      for (var doc in querySnapshot.docs) {
+        var map = doc.data() as Map<String, dynamic>;
+        map['id'] = doc.id;
+        LogbookItem logbookItem = LogbookItem.fromMap(map);
+        result.items.add(logbookItem);
+      }
+    } catch (e, stackTrace) {
+      handleError(e, stackTrace);
+    }
+    return result;
+  }
+
   ///============ private methods --------
 
   Map<String, dynamic> _buildEmailMessageMap(String subject, String html) {
@@ -330,7 +352,14 @@ class FirestoreHelper with AppMixin implements Dbs {
   }
 
   @override
-  Future<Logbook> getLogbook() async {
-    return p.getLogbook();
+  Future<void> addLogbookItem(LogbookItem logbookItem) async {
+    CollectionReference colRef = collectionRef(FsCol.logbook);
+
+    try {
+      Map<String, dynamic> map = logbookItem.toMap();
+      await colRef.doc(logbookItem.id.toString()).set(map);
+    } catch (e, stackTrace) {
+      handleError(e, stackTrace);
+    }
   }
 }

@@ -713,9 +713,9 @@ class LogbookItem {
 
   factory LogbookItem.fromMap(Map<String, dynamic> map) {
     return LogbookItem(
-      id: map['id'] as int,
+      id: int.parse(map['id']),
       devicePk: map['devicePk'] as String,
-      date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
+      date: AppHelper.instance.parseDateTime(map['date'] as int)!,
       userPk: map['userPk'] as String,
       weight: map['weight'] as int,
       description: map['description'] as String,

@@ -1,3 +1,4 @@
+import 'package:dwpn_3dcnc_rooster/controller/app_controler.dart';
 import 'package:dwpn_3dcnc_rooster/data/app_data.dart';
 import 'package:dwpn_3dcnc_rooster/event/app_events.dart';
 import 'package:dwpn_3dcnc_rooster/model/app_models.dart';
@@ -160,6 +161,15 @@ class _LogbookPageState extends State<LogbookPage> with AppMixin {
           ),
         );
       },
-    ).then((value) => {});
+    ).then((value) => _handleLogbookItem(value));
+  }
+
+  //---------------------------------
+  void _handleLogbookItem(LogbookItem? logbookItem) {
+    if (logbookItem == null) {
+      return;
+    }
+
+    AppController.instance.addLogbookItem(logbookItem);
   }
 }
